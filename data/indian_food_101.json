@@ -1,0 +1,645 @@
+[
+  {
+    "name": "Poha",
+    "diet": "vegetarian",
+    "course": "breakfast",
+    "flavor_profile": "mildly spicy & tangy",
+    "prep_time": 10,
+    "cook_time": 15,
+    "ingredients": [
+      "flattened rice",
+      "onions",
+      "peanuts",
+      "mustard seeds",
+      "green chilies",
+      "turmeric",
+      "lemon juice",
+      "curry leaves"
+    ],
+    "region": "West",
+    "state": "Maharashtra",
+    "popularity_score": 4.6
+  },
+  {
+    "name": "Idli Sambar & Chutney",
+    "diet": "vegetarian",
+    "course": "breakfast",
+    "flavor_profile": "savory & tangy",
+    "prep_time": 20,
+    "cook_time": 25,
+    "ingredients": [
+      "rice",
+      "urad dal",
+      "toor dal",
+      "drumsticks",
+      "tamarind",
+      "coconut",
+      "mustard seeds",
+      "sambar powder"
+    ],
+    "region": "South",
+    "state": "Tamil Nadu",
+    "popularity_score": 4.8
+  },
+  {
+    "name": "Aloo Paratha with Curd & Pickle",
+    "diet": "vegetarian",
+    "course": "breakfast",
+    "flavor_profile": "rich & spicy",
+    "prep_time": 25,
+    "cook_time": 20,
+    "ingredients": [
+      "whole wheat flour",
+      "potatoes",
+      "onions",
+      "green chilies",
+      "garam masala",
+      "butter",
+      "curd",
+      "spices"
+    ],
+    "region": "North",
+    "state": "Punjab",
+    "popularity_score": 4.9
+  },
+  {
+    "name": "Upma with Coconut Chutney",
+    "diet": "vegetarian",
+    "course": "breakfast",
+    "flavor_profile": "mild & savory",
+    "prep_time": 10,
+    "cook_time": 15,
+    "ingredients": [
+      "semolina",
+      "mustard seeds",
+      "curry leaves",
+      "ginger",
+      "carrots",
+      "green peas",
+      "coconut",
+      "ghee"
+    ],
+    "region": "South",
+    "state": "Karnataka",
+    "popularity_score": 3.7
+  },
+  {
+    "name": "Moong Dal Cheela with Mint Chutney",
+    "diet": "vegetarian",
+    "course": "breakfast",
+    "flavor_profile": "savory & herby",
+    "prep_time": 15,
+    "cook_time": 15,
+    "ingredients": [
+      "yellow moong dal",
+      "paneer stuffing",
+      "ginger",
+      "green chilies",
+      "mint",
+      "coriander",
+      "cumin"
+    ],
+    "region": "North",
+    "state": "Rajasthan",
+    "popularity_score": 4.4
+  },
+  {
+    "name": "Masala Dosa with Sambar",
+    "diet": "vegetarian",
+    "course": "breakfast",
+    "flavor_profile": "crisp & savory",
+    "prep_time": 20,
+    "cook_time": 25,
+    "ingredients": [
+      "rice",
+      "urad dal",
+      "potatoes",
+      "onions",
+      "turmeric",
+      "sambar powder",
+      "ghee"
+    ],
+    "region": "South",
+    "state": "Karnataka",
+    "popularity_score": 4.9
+  },
+  {
+    "name": "Egg Bhurji with Pav / Bread",
+    "diet": "non-vegetarian",
+    "course": "breakfast",
+    "flavor_profile": "spicy & savory",
+    "prep_time": 10,
+    "cook_time": 12,
+    "ingredients": [
+      "eggs",
+      "onions",
+      "tomatoes",
+      "green chilies",
+      "coriander",
+      "butter",
+      "bread pav"
+    ],
+    "region": "West",
+    "state": "Maharashtra",
+    "popularity_score": 4.7
+  },
+  {
+    "name": "Rajma Masala with Steamed Rice",
+    "diet": "vegetarian",
+    "course": "main course",
+    "flavor_profile": "rich & spicy",
+    "prep_time": 30,
+    "cook_time": 45,
+    "ingredients": [
+      "kidney beans",
+      "onions",
+      "tomatoes",
+      "ginger garlic paste",
+      "garam masala",
+      "basmati rice",
+      "coriander"
+    ],
+    "region": "North",
+    "state": "Punjab",
+    "popularity_score": 4.8
+  },
+  {
+    "name": "Dal Tadka with Jeera Rice & Roti",
+    "diet": "vegetarian",
+    "course": "main course",
+    "flavor_profile": "comforting & garlicky",
+    "prep_time": 15,
+    "cook_time": 30,
+    "ingredients": [
+      "toor dal",
+      "chana dal",
+      "garlic",
+      "cumin",
+      "tomatoes",
+      "ghee",
+      "whole wheat flour",
+      "rice"
+    ],
+    "region": "North",
+    "state": "Uttar Pradesh",
+    "popularity_score": 4.5
+  },
+  {
+    "name": "Paneer Butter Masala with Butter Roti",
+    "diet": "vegetarian",
+    "course": "main course",
+    "flavor_profile": "creamy & mild sweet",
+    "prep_time": 20,
+    "cook_time": 35,
+    "ingredients": [
+      "paneer",
+      "tomatoes",
+      "cashews",
+      "cream",
+      "butter",
+      "kasuri methi",
+      "spices",
+      "whole wheat flour"
+    ],
+    "region": "North",
+    "state": "Punjab",
+    "popularity_score": 4.9
+  },
+  {
+    "name": "Chole Bhature / Chole Kulche",
+    "diet": "vegetarian",
+    "course": "main course",
+    "flavor_profile": "tangy & robust spicy",
+    "prep_time": 30,
+    "cook_time": 40,
+    "ingredients": [
+      "chickpeas",
+      "tea leaves",
+      "onions",
+      "tomatoes",
+      "anardana powder",
+      "garam masala",
+      "all-purpose flour"
+    ],
+    "region": "North",
+    "state": "Delhi",
+    "popularity_score": 4.9
+  },
+  {
+    "name": "Aloo Gobi Matar with Phulka",
+    "diet": "vegetarian",
+    "course": "main course",
+    "flavor_profile": "homely & spiced",
+    "prep_time": 15,
+    "cook_time": 25,
+    "ingredients": [
+      "potatoes",
+      "cauliflower",
+      "green peas",
+      "tomatoes",
+      "ginger",
+      "turmeric",
+      "cumin",
+      "whole wheat flour"
+    ],
+    "region": "North",
+    "state": "Madhya Pradesh",
+    "popularity_score": 3.9
+  },
+  {
+    "name": "Kadhi Pakoda with Steamed Rice",
+    "diet": "vegetarian",
+    "course": "main course",
+    "flavor_profile": "sour & tangy",
+    "prep_time": 20,
+    "cook_time": 35,
+    "ingredients": [
+      "besan gram flour",
+      "sour curd",
+      "onions",
+      "fenugreek seeds",
+      "curry leaves",
+      "red chilies",
+      "rice"
+    ],
+    "region": "North",
+    "state": "Haryana",
+    "popularity_score": 3.6
+  },
+  {
+    "name": "Palak Paneer with Missi Roti",
+    "diet": "vegetarian",
+    "course": "main course",
+    "flavor_profile": "earthy & savory",
+    "prep_time": 20,
+    "cook_time": 25,
+    "ingredients": [
+      "spinach",
+      "paneer",
+      "garlic",
+      "ginger",
+      "green chilies",
+      "gram flour",
+      "wheat flour",
+      "ghee"
+    ],
+    "region": "North",
+    "state": "Punjab",
+    "popularity_score": 4.7
+  },
+  {
+    "name": "Bhindi Masala with Chapati & Dal Fry",
+    "diet": "vegetarian",
+    "course": "main course",
+    "flavor_profile": "crisp & dry spicy",
+    "prep_time": 15,
+    "cook_time": 20,
+    "ingredients": [
+      "okra",
+      "onions",
+      "amchur powder",
+      "coriander powder",
+      "toor dal",
+      "wheat flour"
+    ],
+    "region": "West",
+    "state": "Gujarat",
+    "popularity_score": 4.0
+  },
+  {
+    "name": "Vegetable Biryani with Boondi Raita",
+    "diet": "vegetarian",
+    "course": "main course",
+    "flavor_profile": "aromatic & spiced",
+    "prep_time": 25,
+    "cook_time": 40,
+    "ingredients": [
+      "basmati rice",
+      "carrots",
+      "beans",
+      "peas",
+      "fried onions",
+      "biryani masala",
+      "curd",
+      "boondi"
+    ],
+    "region": "South",
+    "state": "Telangana",
+    "popularity_score": 4.8
+  },
+  {
+    "name": "Sambar Rice with Potato Fry & Papad",
+    "diet": "vegetarian",
+    "course": "main course",
+    "flavor_profile": "tangy & spiced",
+    "prep_time": 15,
+    "cook_time": 30,
+    "ingredients": [
+      "rice",
+      "toor dal",
+      "drumsticks",
+      "tamarind",
+      "potatoes",
+      "urad papad",
+      "sambar powder"
+    ],
+    "region": "South",
+    "state": "Tamil Nadu",
+    "popularity_score": 4.3
+  },
+  {
+    "name": "Butter Chicken with Naan / Roti",
+    "diet": "non-vegetarian",
+    "course": "main course",
+    "flavor_profile": "rich, creamy & mildly spicy",
+    "prep_time": 30,
+    "cook_time": 45,
+    "ingredients": [
+      "chicken",
+      "butter",
+      "cream",
+      "tomatoes",
+      "cashews",
+      "kasuri methi",
+      "wheat flour"
+    ],
+    "region": "North",
+    "state": "Delhi",
+    "popularity_score": 4.9
+  },
+  {
+    "name": "Egg Curry with Jeera Rice & Chapati",
+    "diet": "non-vegetarian",
+    "course": "main course",
+    "flavor_profile": "spicy & savory",
+    "prep_time": 15,
+    "cook_time": 30,
+    "ingredients": [
+      "boiled eggs",
+      "onions",
+      "tomatoes",
+      "ginger garlic",
+      "garam masala",
+      "rice",
+      "wheat flour"
+    ],
+    "region": "East",
+    "state": "West Bengal",
+    "popularity_score": 4.5
+  },
+  {
+    "name": "Chicken Curry with Steamed Rice",
+    "diet": "non-vegetarian",
+    "course": "main course",
+    "flavor_profile": "spicy & aromatic",
+    "prep_time": 20,
+    "cook_time": 40,
+    "ingredients": [
+      "chicken",
+      "onions",
+      "tomatoes",
+      "whole spices",
+      "coriander",
+      "mustard oil",
+      "rice"
+    ],
+    "region": "East",
+    "state": "Odisha",
+    "popularity_score": 4.7
+  },
+  {
+    "name": "Baingan Bharta with Bajra Roti",
+    "diet": "vegetarian",
+    "course": "main course",
+    "flavor_profile": "smoky & savory",
+    "prep_time": 20,
+    "cook_time": 30,
+    "ingredients": [
+      "roasted eggplant",
+      "onions",
+      "tomatoes",
+      "garlic",
+      "green chilies",
+      "pearl millet flour"
+    ],
+    "region": "West",
+    "state": "Maharashtra",
+    "popularity_score": 3.8
+  },
+  {
+    "name": "Mixed Dal Panchmel with Khichdi",
+    "diet": "vegetarian",
+    "course": "main course",
+    "flavor_profile": "wholesome & comforting",
+    "prep_time": 15,
+    "cook_time": 30,
+    "ingredients": [
+      "toor dal",
+      "moong dal",
+      "masoor dal",
+      "urad dal",
+      "chana dal",
+      "rice",
+      "cumin",
+      "ghee"
+    ],
+    "region": "North",
+    "state": "Rajasthan",
+    "popularity_score": 4.1
+  },
+  {
+    "name": "Samosa with Tamarind Chutney & Tea",
+    "diet": "vegetarian",
+    "course": "snack",
+    "flavor_profile": "crisp & spicy",
+    "prep_time": 20,
+    "cook_time": 20,
+    "ingredients": [
+      "flour",
+      "potatoes",
+      "green peas",
+      "spices",
+      "oil",
+      "tamarind",
+      "jaggery",
+      "tea leaves",
+      "milk"
+    ],
+    "region": "North",
+    "state": "Uttar Pradesh",
+    "popularity_score": 4.9
+  },
+  {
+    "name": "Pav Bhaji with Filter Coffee / Tea",
+    "diet": "vegetarian",
+    "course": "snack",
+    "flavor_profile": "spicy & buttery",
+    "prep_time": 20,
+    "cook_time": 30,
+    "ingredients": [
+      "potatoes",
+      "tomatoes",
+      "capsicum",
+      "peas",
+      "butter",
+      "pav bhaji masala",
+      "bread pav"
+    ],
+    "region": "West",
+    "state": "Maharashtra",
+    "popularity_score": 4.9
+  },
+  {
+    "name": "Bread Pakoda with Green Chutney",
+    "diet": "vegetarian",
+    "course": "snack",
+    "flavor_profile": "crispy & savory",
+    "prep_time": 15,
+    "cook_time": 15,
+    "ingredients": [
+      "bread",
+      "gram flour besan",
+      "mashed potatoes",
+      "ajwain",
+      "coriander",
+      "oil"
+    ],
+    "region": "North",
+    "state": "Punjab",
+    "popularity_score": 4.4
+  },
+  {
+    "name": "Dhokla with Mustard Tempering",
+    "diet": "vegetarian",
+    "course": "snack",
+    "flavor_profile": "spongy, sweet & tangy",
+    "prep_time": 15,
+    "cook_time": 20,
+    "ingredients": [
+      "gram flour",
+      "eno fruit salt",
+      "green chilies",
+      "mustard seeds",
+      "sugar",
+      "coriander"
+    ],
+    "region": "West",
+    "state": "Gujarat",
+    "popularity_score": 4.3
+  },
+  {
+    "name": "Veg Cutlet with Tomato Ketchup",
+    "diet": "vegetarian",
+    "course": "snack",
+    "flavor_profile": "crispy & spiced",
+    "prep_time": 20,
+    "cook_time": 15,
+    "ingredients": [
+      "potatoes",
+      "carrots",
+      "beans",
+      "breadcrumbs",
+      "spices",
+      "oil"
+    ],
+    "region": "South",
+    "state": "Kerala",
+    "popularity_score": 4.1
+  },
+  {
+    "name": "Gulab Jamun",
+    "diet": "vegetarian",
+    "course": "dessert",
+    "flavor_profile": "sweet & syrupy",
+    "prep_time": 20,
+    "cook_time": 25,
+    "ingredients": [
+      "khoya milk solids",
+      "flour",
+      "sugar syrup",
+      "cardamom",
+      "rose water",
+      "ghee"
+    ],
+    "region": "North",
+    "state": "West Bengal",
+    "popularity_score": 4.9
+  },
+  {
+    "name": "Rice Kheer with Almonds & Cardamom",
+    "diet": "vegetarian",
+    "course": "dessert",
+    "flavor_profile": "rich & aromatic sweet",
+    "prep_time": 10,
+    "cook_time": 40,
+    "ingredients": [
+      "milk",
+      "rice",
+      "sugar",
+      "cardamom",
+      "almonds",
+      "saffron"
+    ],
+    "region": "North",
+    "state": "Bihar",
+    "popularity_score": 4.7
+  },
+  {
+    "name": "Moong Dal Halwa",
+    "diet": "vegetarian",
+    "course": "dessert",
+    "flavor_profile": "rich & buttery sweet",
+    "prep_time": 20,
+    "cook_time": 45,
+    "ingredients": [
+      "yellow moong dal",
+      "ghee",
+      "sugar",
+      "milk",
+      "cashews",
+      "cardamom"
+    ],
+    "region": "North",
+    "state": "Rajasthan",
+    "popularity_score": 4.8
+  },
+  {
+    "name": "Fruit Custard",
+    "diet": "vegetarian",
+    "course": "dessert",
+    "flavor_profile": "creamy & refreshing sweet",
+    "prep_time": 15,
+    "cook_time": 15,
+    "ingredients": [
+      "milk",
+      "custard powder",
+      "sugar",
+      "apples",
+      "bananas",
+      "pomegranate"
+    ],
+    "region": "Central",
+    "state": "All-India",
+    "popularity_score": 4.2
+  },
+  {
+    "name": "Gajar Ka Halwa",
+    "diet": "vegetarian",
+    "course": "dessert",
+    "flavor_profile": "sweet & nutty",
+    "prep_time": 25,
+    "cook_time": 50,
+    "ingredients": [
+      "red carrots",
+      "milk",
+      "sugar",
+      "ghee",
+      "cardamom",
+      "raisins",
+      "cashews"
+    ],
+    "region": "North",
+    "state": "Punjab",
+    "popularity_score": 4.9
+  }
+]

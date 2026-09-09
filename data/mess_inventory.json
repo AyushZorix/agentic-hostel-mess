@@ -1,0 +1,101 @@
+[
+  {
+    "item": "Hybrid Tomatoes",
+    "quantity": 48.0,
+    "unit": "kg",
+    "days_to_expiry": 2,
+    "batch_id": "BATCH-TOM-0907",
+    "reorder_point": 30.0,
+    "urgency": "CRITICAL_LEFTOVER"
+  },
+  {
+    "item": "Cauliflower",
+    "quantity": 35.0,
+    "unit": "kg",
+    "days_to_expiry": 2,
+    "batch_id": "BATCH-CAU-0907",
+    "reorder_point": 20.0,
+    "urgency": "CRITICAL_LEFTOVER"
+  },
+  {
+    "item": "Fresh Spinach (Palak)",
+    "quantity": 24.0,
+    "unit": "kg",
+    "days_to_expiry": 1,
+    "batch_id": "BATCH-PLK-0908",
+    "reorder_point": 15.0,
+    "urgency": "URGENT_USE_TODAY"
+  },
+  {
+    "item": "Plain Curd / Dahi",
+    "quantity": 45.0,
+    "unit": "kg",
+    "days_to_expiry": 2,
+    "batch_id": "BATCH-CRD-0907",
+    "reorder_point": 25.0,
+    "urgency": "CRITICAL_LEFTOVER"
+  },
+  {
+    "item": "Potatoes (Agra Special)",
+    "quantity": 180.0,
+    "unit": "kg",
+    "days_to_expiry": 16,
+    "batch_id": "BATCH-POT-0901",
+    "reorder_point": 50.0,
+    "urgency": "STABLE"
+  },
+  {
+    "item": "Red Onions (Nashik Medium)",
+    "quantity": 140.0,
+    "unit": "kg",
+    "days_to_expiry": 20,
+    "batch_id": "BATCH-ONI-0901",
+    "reorder_point": 40.0,
+    "urgency": "STABLE"
+  },
+  {
+    "item": "Atta (Whole Wheat Flour)",
+    "quantity": 320.0,
+    "unit": "kg",
+    "days_to_expiry": 75,
+    "batch_id": "BATCH-WHT-0820",
+    "reorder_point": 100.0,
+    "urgency": "STABLE"
+  },
+  {
+    "item": "Basmati Sella Rice",
+    "quantity": 280.0,
+    "unit": "kg",
+    "days_to_expiry": 150,
+    "batch_id": "BATCH-RIC-0815",
+    "reorder_point": 80.0,
+    "urgency": "STABLE"
+  },
+  {
+    "item": "Toor Dal (Arhar)",
+    "quantity": 85.0,
+    "unit": "kg",
+    "days_to_expiry": 90,
+    "batch_id": "BATCH-DAL-0822",
+    "reorder_point": 30.0,
+    "urgency": "STABLE"
+  },
+  {
+    "item": "Rajma (Chitra Kidney Beans)",
+    "quantity": 60.0,
+    "unit": "kg",
+    "days_to_expiry": 140,
+    "batch_id": "BATCH-RJM-0810",
+    "reorder_point": 25.0,
+    "urgency": "STABLE"
+  },
+  {
+    "item": "Refined Mustard / Sunflower Oil",
+    "quantity": 75.0,
+    "unit": "L",
+    "days_to_expiry": 160,
+    "batch_id": "BATCH-OIL-0805",
+    "reorder_point": 25.0,
+    "urgency": "STABLE"
+  }
+]
