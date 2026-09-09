@@ -186,16 +186,53 @@ class MessMCPServer:
         else:
             return {"error": f"Unknown tool: {name}"}
 
+    def read_resource(self, uri: str) -> Dict[str, Any]:
+        if uri == "mess://vendor-prices":
+            return {
+                "uri": uri,
+                "mimeType": "application/json",
+                "contents": self.vendor_prices,
+                "count": len(self.vendor_prices)
+            }
+        elif uri == "mess://inventory":
+            return {
+                "uri": uri,
+                "mimeType": "application/json",
+                "contents": self.inventory,
+                "count": len(self.inventory)
+            }
+        else:
+            return {"error": f"Resource not found: {uri}"}
+
     def process_rpc(self, request_str: str) -> str:
         try:
-            req = json.loads(request_str)
+            req = json.loads(request_str) if isinstance(request_str, str) else request_str
             method = req.get("method")
-            req_id = req.get("id")
+            req_id = req.get("id", 1)
 
-            if method == "tools/list":
+            if method == "initialize":
+                res = {
+                    "protocolVersion": "2024-11-05",
+                    "capabilities": {
+                        "tools": {"listChanged": False},
+                        "resources": {"subscribe": False, "listChanged": False}
+                    },
+                    "serverInfo": {
+                        "name": "hostel-mess-mcp-server",
+                        "version": "1.0.0",
+                        "description": "Model Context Protocol Server for wholesale pricing and mess inventory"
+                    }
+                }
+            elif method == "ping":
+                res = {}
+            elif method == "tools/list":
                 res = {"tools": self.list_tools()}
             elif method == "resources/list":
                 res = {"resources": self.list_resources()}
+            elif method == "resources/read":
+                params = req.get("params", {})
+                uri = params.get("uri", "")
+                res = self.read_resource(uri)
             elif method == "tools/call":
                 params = req.get("params", {})
                 tool_name = params.get("name")

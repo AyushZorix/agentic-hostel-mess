@@ -39,6 +39,8 @@ export interface WeeklySchedule {
   leftovers_cleared_kg: number;
   status: "AUTO_APPROVED" | "PENDING_COMMITTEE_APPROVAL" | "COMMITTEE_APPROVED";
   approval_id?: string;
+  conflicts_resolved?: any[];
+  procurement_items?: any[];
   schedule: Record<string, DayPlan>;
 }
 
