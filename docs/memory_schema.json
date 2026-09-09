@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HostelMessOperationsAgentDualTierMemory",
+  "description": "Schema separating ephemeral Session State from durable Long-Term Memory",
+  "type": "object",
+  "properties": {
+    "session_state": {
+      "type": "object",
+      "description": "Ephemeral working memory for the active week's menu planning cycle",
+      "properties": {
+        "cycle_id": {"type": "string", "example": "CYCLE-2026-W06"},
+        "semester_week": {"type": "integer", "minimum": 1, "maximum": 16},
+        "planning_stage": {
+          "type": "string",
+          "enum": ["INGESTING_INVENTORY", "SWARM_DEBATING", "ARBITRATING_CONFLICTS", "AWAITING_COMMITTEE_APPROVAL", "FINALIZED_DISPATCHED"]
+        },
+        "draft_revision": {"type": "integer", "minimum": 1},
+        "current_draft": {
+          "type": "object",
+          "description": "Active 7-day meal matrix with dish assignments and macros"
+        },
+        "active_conflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "conflict_id": {"type": "string"},
+              "agents_involved": {"type": "array", "items": {"type": "string"}},
+              "description": {"type": "string"},
+              "resolution": {"type": "string"},
+              "status": {"type": "string", "enum": ["OPEN", "RESOLVED"]}
+            },
+            "required": ["conflict_id", "agents_involved", "description", "status"]
+          }
+        },
+        "leftovers_allocated": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {"type": "string"},
+              "quantity_kg": {"type": "number"},
+              "assigned_meal": {"type": "string"}
+            }
+          }
+        },
+        "running_cost_estimate_inr": {"type": "number"}
+      },
+      "required": ["cycle_id", "semester_week", "planning_stage", "draft_revision", "running_cost_estimate_inr"]
+    },
+    "long_term_memory": {
+      "type": "object",
+      "description": "Durable multi-month knowledge base storing student feedback, waste audits, and vendor performance",
+      "properties": {
+        "historical_weekly_ratings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "week_number": {"type": "integer"},
+              "overall_rating": {"type": "number", "minimum": 1.0, "maximum": 5.0},
+              "highest_rated_dish": {"type": "string"},
+              "lowest_rated_dish": {"type": "string"},
+              "student_turnout_percent": {"type": "number"}
+            },
+            "required": ["week_number", "overall_rating"]
+          }
+        },
+        "plate_waste_audits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "dish_name": {"type": "string"},
+              "average_waste_percentage": {"type": "number", "description": "% of cooked food discarded into mess bins"},
+              "complaint_driver": {"type": "string"},
+              "penalty_weight": {"type": "number", "description": "Down-weighting in Variety Agent selection"}
+            },
+            "required": ["dish_name", "average_waste_percentage"]
+          }
+        },
+        "recurring_student_complaints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "complaint_id": {"type": "string"},
+              "category": {"type": "string", "enum": ["TEXTURE", "QUANTITY", "REPETITION", "TEMPERATURE", "SPICE_LEVEL", "HYGIENE"]},
+              "summary": {"type": "string"},
+              "occurrence_count": {"type": "integer"},
+              "actionable_heuristic": {"type": "string"}
+            },
+            "required": ["complaint_id", "category", "summary", "actionable_heuristic"]
+          }
+        },
+        "vendor_reliability_scores": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "supplier_name": {"type": "string"},
+              "on_time_delivery_rate": {"type": "number"},
+              "freshness_rating": {"type": "number"},
+              "price_competitiveness": {"type": "number"}
+            },
+            "required": ["supplier_name", "on_time_delivery_rate"]
+          }
+        }
+      },
+      "required": ["historical_weekly_ratings", "plate_waste_audits", "recurring_student_complaints", "vendor_reliability_scores"]
+    }
+  },
+  "required": ["session_state", "long_term_memory"]
+}

@@ -1,0 +1,1991 @@
+{
+  "week_6_routine": {
+    "session_state": {
+      "cycle_id": "CYCLE-2026-W06",
+      "semester_week": 6,
+      "planning_stage": "FINALIZED_DISPATCHED",
+      "draft_revision": 1,
+      "current_draft": {
+        "Monday": {
+          "breakfast": "Poha",
+          "lunch": "Aloo Gobi Matar with Phulka",
+          "snack": "Bread Pakoda with Green Chutney",
+          "dinner": "Palak Paneer with Missi Roti"
+        },
+        "Tuesday": {
+          "breakfast": "Idli Sambar & Chutney",
+          "lunch": "Rajma Masala with Steamed Rice",
+          "snack": "Samosa with Tamarind Chutney & Tea",
+          "dinner": "Dal Tadka with Jeera Rice & Roti"
+        },
+        "Wednesday": {
+          "breakfast": "Moong Dal Cheela with Mint Chutney",
+          "lunch": "Rajma Masala with Steamed Rice",
+          "snack": "Dhokla with Mustard Tempering",
+          "dinner": "Aloo Gobi Matar with Phulka"
+        },
+        "Thursday": {
+          "breakfast": "Upma with Coconut Chutney",
+          "lunch": "Chole Bhature / Chole Kulche",
+          "snack": "Veg Cutlet with Tomato Ketchup",
+          "dinner": "Mixed Dal Panchmel with Khichdi"
+        },
+        "Friday": {
+          "breakfast": "Masala Dosa with Sambar",
+          "lunch": "Sambar Rice with Potato Fry & Papad",
+          "snack": "Bread Pakoda with Green Chutney",
+          "dinner": "Egg Curry with Jeera Rice & Chapati"
+        },
+        "Saturday": {
+          "breakfast": "Moong Dal Cheela with Mint Chutney",
+          "lunch": "Bhindi Masala with Chapati & Dal Fry",
+          "snack": "Dhokla with Mustard Tempering",
+          "dinner": "Paneer Butter Masala with Butter Roti"
+        },
+        "Sunday": {
+          "breakfast": "Egg Bhurji with Pav / Bread",
+          "lunch": "Vegetable Biryani with Boondi Raita",
+          "snack": "Samosa with Tamarind Chutney & Tea",
+          "dinner": "Butter Chicken with Naan / Roti"
+        }
+      },
+      "active_conflicts": [
+        {
+          "conflict_id": "CONF-POTATO-01",
+          "agents_involved": [
+            "Budget-Agent",
+            "Variety-Agent"
+          ],
+          "description": "Budget-Agent favoured cheap potato dishes (4 meals), violating Variety-Agent's max 3 potato meals cap.",
+          "resolution": "Coordinator swapped Saturday breakfast 'Aloo Paratha with Curd & Pickle' to 'Moong Dal Cheela with Mint Chutney', reducing potato count to 3 and raising protein by +6.7g.",
+          "status": "RESOLVED",
+          "timestamp": "2026-09-09T06:22:11.326677"
+        },
+        {
+          "conflict_id": "CONF-WASTE-PROTEIN-02",
+          "agents_involved": [
+            "Nutrition-Agent",
+            "Variety-Agent"
+          ],
+          "description": "Tuesday lunch Kadhi Pakoda has 31.5% historical plate waste and Tuesday shows a protein deficit (57.2g vs 65g target).",
+          "resolution": "Coordinator replaced Tuesday lunch with 'Rajma Masala with Steamed Rice', eliminating the unpalatable dish and boosting Tuesday protein to 71.4g.",
+          "status": "RESOLVED",
+          "timestamp": "2026-09-09T06:22:11.326682"
+        }
+      ],
+      "leftovers_allocated": [
+        {
+          "item": "Hybrid Tomatoes",
+          "quantity_kg": 48.0,
+          "assigned_meal": "Monday Lunch"
+        },
+        {
+          "item": "Cauliflower",
+          "quantity_kg": 35.0,
+          "assigned_meal": "Monday Lunch"
+        },
+        {
+          "item": "Fresh Spinach (Palak)",
+          "quantity_kg": 24.0,
+          "assigned_meal": "Monday Dinner"
+        },
+        {
+          "item": "Plain Curd / Dahi",
+          "quantity_kg": 45.0,
+          "assigned_meal": "Monday Dinner"
+        }
+      ],
+      "running_cost_estimate_inr": 443091.0,
+      "scratchpad": [
+        "Leftover-First Rule invoked: 4 items prioritized into Mon/Tue meals."
+      ]
+    },
+    "schedule": {
+      "Monday": {
+        "breakfast": "Poha",
+        "lunch": "Aloo Gobi Matar with Phulka",
+        "snack": "Bread Pakoda with Green Chutney",
+        "dinner": "Palak Paneer with Missi Roti"
+      },
+      "Tuesday": {
+        "breakfast": "Idli Sambar & Chutney",
+        "lunch": "Rajma Masala with Steamed Rice",
+        "snack": "Samosa with Tamarind Chutney & Tea",
+        "dinner": "Dal Tadka with Jeera Rice & Roti"
+      },
+      "Wednesday": {
+        "breakfast": "Moong Dal Cheela with Mint Chutney",
+        "lunch": "Rajma Masala with Steamed Rice",
+        "snack": "Dhokla with Mustard Tempering",
+        "dinner": "Aloo Gobi Matar with Phulka"
+      },
+      "Thursday": {
+        "breakfast": "Upma with Coconut Chutney",
+        "lunch": "Chole Bhature / Chole Kulche",
+        "snack": "Veg Cutlet with Tomato Ketchup",
+        "dinner": "Mixed Dal Panchmel with Khichdi"
+      },
+      "Friday": {
+        "breakfast": "Masala Dosa with Sambar",
+        "lunch": "Sambar Rice with Potato Fry & Papad",
+        "snack": "Bread Pakoda with Green Chutney",
+        "dinner": "Egg Curry with Jeera Rice & Chapati"
+      },
+      "Saturday": {
+        "breakfast": "Moong Dal Cheela with Mint Chutney",
+        "lunch": "Bhindi Masala with Chapati & Dal Fry",
+        "snack": "Dhokla with Mustard Tempering",
+        "dinner": "Paneer Butter Masala with Butter Roti"
+      },
+      "Sunday": {
+        "breakfast": "Egg Bhurji with Pav / Bread",
+        "lunch": "Vegetable Biryani with Boondi Raita",
+        "snack": "Samosa with Tamarind Chutney & Tea",
+        "dinner": "Butter Chicken with Naan / Roti"
+      }
+    },
+    "daily_nutrition": {
+      "Monday": {
+        "day": "Monday",
+        "calories": 1550,
+        "protein_g": 50.3,
+        "carbs_g": 209.5,
+        "fat_g": 57.1,
+        "iron_mg": 17.6,
+        "calcium_mg": 577.0,
+        "is_compliant": false,
+        "critiques": [
+          "PROTEIN_DEFICIT: Monday provides only 50.3g protein (ICMR target: >= 65.0g). Recommend swapping low-protein item with Chole, Rajma, or Eggs.",
+          "CALORIC_DEFICIT: Monday provides 1550 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 200,
+            "calories": 280,
+            "protein_g": 6.2,
+            "carbs_g": 48.5,
+            "fat_g": 7.1,
+            "fiber_g": 3.8,
+            "iron_mg": 4.5,
+            "calcium_mg": 45.0,
+            "source": "USDA-FDC-171052"
+          },
+          "lunch": {
+            "portion_g": 380,
+            "calories": 410,
+            "protein_g": 11.2,
+            "carbs_g": 72.0,
+            "fat_g": 8.5,
+            "fiber_g": 9.4,
+            "iron_mg": 4.1,
+            "calcium_mg": 74.0,
+            "source": "USDA-FDC-170420"
+          },
+          "snack": {
+            "portion_g": 170,
+            "calories": 330,
+            "protein_g": 7.4,
+            "carbs_g": 41.0,
+            "fat_g": 15.5,
+            "fiber_g": 3.5,
+            "iron_mg": 2.2,
+            "calcium_mg": 48.0,
+            "source": "USDA-FDC-171872"
+          },
+          "dinner": {
+            "portion_g": 380,
+            "calories": 530,
+            "protein_g": 25.5,
+            "carbs_g": 48.0,
+            "fat_g": 26.0,
+            "fiber_g": 8.2,
+            "iron_mg": 6.8,
+            "calcium_mg": 410.0,
+            "source": "USDA-FDC-170455"
+          }
+        }
+      },
+      "Tuesday": {
+        "day": "Tuesday",
+        "calories": 1710,
+        "protein_g": 54.4,
+        "carbs_g": 278.0,
+        "fat_g": 43.0,
+        "iron_mg": 16.7,
+        "calcium_mg": 306.0,
+        "is_compliant": false,
+        "critiques": [
+          "PROTEIN_DEFICIT: Tuesday provides only 54.4g protein (ICMR target: >= 65.0g). Recommend swapping low-protein item with Chole, Rajma, or Eggs.",
+          "CALORIC_DEFICIT: Tuesday provides 1710 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 320,
+            "calories": 340,
+            "protein_g": 11.5,
+            "carbs_g": 58.0,
+            "fat_g": 6.8,
+            "fiber_g": 6.2,
+            "iron_mg": 3.2,
+            "calcium_mg": 68.0,
+            "source": "USDA-FDC-172184"
+          },
+          "lunch": {
+            "portion_g": 420,
+            "calories": 520,
+            "protein_g": 19.5,
+            "carbs_g": 86.0,
+            "fat_g": 10.2,
+            "fiber_g": 12.8,
+            "iron_mg": 6.2,
+            "calcium_mg": 110.0,
+            "source": "USDA-FDC-173740"
+          },
+          "snack": {
+            "portion_g": 160,
+            "calories": 310,
+            "protein_g": 5.2,
+            "carbs_g": 42.0,
+            "fat_g": 14.5,
+            "fiber_g": 3.0,
+            "iron_mg": 1.9,
+            "calcium_mg": 40.0,
+            "source": "USDA-FDC-171840"
+          },
+          "dinner": {
+            "portion_g": 450,
+            "calories": 540,
+            "protein_g": 18.2,
+            "carbs_g": 92.0,
+            "fat_g": 11.5,
+            "fiber_g": 10.5,
+            "iron_mg": 5.4,
+            "calcium_mg": 88.0,
+            "source": "USDA-FDC-172445"
+          }
+        }
+      },
+      "Wednesday": {
+        "day": "Wednesday",
+        "calories": 1450,
+        "protein_g": 55.4,
+        "carbs_g": 232.0,
+        "fat_g": 32.2,
+        "iron_mg": 16.8,
+        "calcium_mg": 311.0,
+        "is_compliant": false,
+        "critiques": [
+          "PROTEIN_DEFICIT: Wednesday provides only 55.4g protein (ICMR target: >= 65.0g). Recommend swapping low-protein item with Chole, Rajma, or Eggs.",
+          "CALORIC_DEFICIT: Wednesday provides 1450 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 220,
+            "calories": 310,
+            "protein_g": 16.5,
+            "carbs_g": 42.0,
+            "fat_g": 8.0,
+            "fiber_g": 6.5,
+            "iron_mg": 4.1,
+            "calcium_mg": 85.0,
+            "source": "USDA-FDC-172401"
+          },
+          "lunch": {
+            "portion_g": 420,
+            "calories": 520,
+            "protein_g": 19.5,
+            "carbs_g": 86.0,
+            "fat_g": 10.2,
+            "fiber_g": 12.8,
+            "iron_mg": 6.2,
+            "calcium_mg": 110.0,
+            "source": "USDA-FDC-173740"
+          },
+          "snack": {
+            "portion_g": 160,
+            "calories": 210,
+            "protein_g": 8.2,
+            "carbs_g": 32.0,
+            "fat_g": 5.5,
+            "fiber_g": 4.1,
+            "iron_mg": 2.4,
+            "calcium_mg": 42.0,
+            "source": "USDA-FDC-172430"
+          },
+          "dinner": {
+            "portion_g": 380,
+            "calories": 410,
+            "protein_g": 11.2,
+            "carbs_g": 72.0,
+            "fat_g": 8.5,
+            "fiber_g": 9.4,
+            "iron_mg": 4.1,
+            "calcium_mg": 74.0,
+            "source": "USDA-FDC-170420"
+          }
+        }
+      },
+      "Thursday": {
+        "day": "Thursday",
+        "calories": 1700,
+        "protein_g": 49.6,
+        "carbs_g": 254.0,
+        "fat_g": 54.5,
+        "iron_mg": 15.0,
+        "calcium_mg": 263.0,
+        "is_compliant": false,
+        "critiques": [
+          "PROTEIN_DEFICIT: Thursday provides only 49.6g protein (ICMR target: >= 65.0g). Recommend swapping low-protein item with Chole, Rajma, or Eggs.",
+          "CALORIC_DEFICIT: Thursday provides 1700 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 220,
+            "calories": 290,
+            "protein_g": 7.0,
+            "carbs_g": 44.0,
+            "fat_g": 9.5,
+            "fiber_g": 3.1,
+            "iron_mg": 2.1,
+            "calcium_mg": 38.0,
+            "source": "USDA-FDC-171990"
+          },
+          "lunch": {
+            "portion_g": 400,
+            "calories": 680,
+            "protein_g": 18.0,
+            "carbs_g": 96.0,
+            "fat_g": 25.0,
+            "fiber_g": 11.0,
+            "iron_mg": 5.8,
+            "calcium_mg": 95.0,
+            "source": "USDA-FDC-173733"
+          },
+          "snack": {
+            "portion_g": 150,
+            "calories": 250,
+            "protein_g": 4.8,
+            "carbs_g": 36.0,
+            "fat_g": 10.0,
+            "fiber_g": 4.5,
+            "iron_mg": 2.0,
+            "calcium_mg": 35.0,
+            "source": "USDA-FDC-171885"
+          },
+          "dinner": {
+            "portion_g": 420,
+            "calories": 480,
+            "protein_g": 19.8,
+            "carbs_g": 78.0,
+            "fat_g": 10.0,
+            "fiber_g": 9.5,
+            "iron_mg": 5.1,
+            "calcium_mg": 95.0,
+            "source": "USDA-FDC-172460"
+          }
+        }
+      },
+      "Friday": {
+        "day": "Friday",
+        "calories": 1800,
+        "protein_g": 54.8,
+        "carbs_g": 271.0,
+        "fat_g": 55.6,
+        "iron_mg": 14.2,
+        "calcium_mg": 292.0,
+        "is_compliant": false,
+        "critiques": [
+          "PROTEIN_DEFICIT: Friday provides only 54.8g protein (ICMR target: >= 65.0g). Recommend swapping low-protein item with Chole, Rajma, or Eggs.",
+          "CALORIC_DEFICIT: Friday provides 1800 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 300,
+            "calories": 380,
+            "protein_g": 9.2,
+            "carbs_g": 64.0,
+            "fat_g": 10.1,
+            "fiber_g": 4.9,
+            "iron_mg": 2.9,
+            "calcium_mg": 52.0,
+            "source": "USDA-FDC-172202"
+          },
+          "lunch": {
+            "portion_g": 420,
+            "calories": 530,
+            "protein_g": 14.0,
+            "carbs_g": 88.0,
+            "fat_g": 13.5,
+            "fiber_g": 8.0,
+            "iron_mg": 4.3,
+            "calcium_mg": 82.0,
+            "source": "USDA-FDC-172210"
+          },
+          "snack": {
+            "portion_g": 170,
+            "calories": 330,
+            "protein_g": 7.4,
+            "carbs_g": 41.0,
+            "fat_g": 15.5,
+            "fiber_g": 3.5,
+            "iron_mg": 2.2,
+            "calcium_mg": 48.0,
+            "source": "USDA-FDC-171872"
+          },
+          "dinner": {
+            "portion_g": 430,
+            "calories": 560,
+            "protein_g": 24.2,
+            "carbs_g": 78.0,
+            "fat_g": 16.5,
+            "fiber_g": 5.8,
+            "iron_mg": 4.8,
+            "calcium_mg": 110.0,
+            "source": "USDA-FDC-171295"
+          }
+        }
+      },
+      "Saturday": {
+        "day": "Saturday",
+        "calories": 1620,
+        "protein_g": 64.3,
+        "carbs_g": 200.0,
+        "fat_g": 62.5,
+        "iron_mg": 14.5,
+        "calcium_mg": 582.0,
+        "is_compliant": false,
+        "critiques": [
+          "PROTEIN_DEFICIT: Saturday provides only 64.3g protein (ICMR target: >= 65.0g). Recommend swapping low-protein item with Chole, Rajma, or Eggs.",
+          "CALORIC_DEFICIT: Saturday provides 1620 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 220,
+            "calories": 310,
+            "protein_g": 16.5,
+            "carbs_g": 42.0,
+            "fat_g": 8.0,
+            "fiber_g": 6.5,
+            "iron_mg": 4.1,
+            "calcium_mg": 85.0,
+            "source": "USDA-FDC-172401"
+          },
+          "lunch": {
+            "portion_g": 400,
+            "calories": 460,
+            "protein_g": 14.8,
+            "carbs_g": 74.0,
+            "fat_g": 11.0,
+            "fiber_g": 8.6,
+            "iron_mg": 4.9,
+            "calcium_mg": 115.0,
+            "source": "USDA-FDC-170438"
+          },
+          "snack": {
+            "portion_g": 160,
+            "calories": 210,
+            "protein_g": 8.2,
+            "carbs_g": 32.0,
+            "fat_g": 5.5,
+            "fiber_g": 4.1,
+            "iron_mg": 2.4,
+            "calcium_mg": 42.0,
+            "source": "USDA-FDC-172430"
+          },
+          "dinner": {
+            "portion_g": 380,
+            "calories": 640,
+            "protein_g": 24.8,
+            "carbs_g": 52.0,
+            "fat_g": 38.0,
+            "fiber_g": 5.2,
+            "iron_mg": 3.1,
+            "calcium_mg": 340.0,
+            "source": "USDA-FDC-170889"
+          }
+        }
+      },
+      "Sunday": {
+        "day": "Sunday",
+        "calories": 1880,
+        "protein_g": 77.9,
+        "carbs_g": 215.0,
+        "fat_g": 81.0,
+        "iron_mg": 13.8,
+        "calcium_mg": 402.0,
+        "is_compliant": false,
+        "critiques": [
+          "CALORIC_DEFICIT: Sunday provides 1880 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 240,
+            "calories": 390,
+            "protein_g": 21.0,
+            "carbs_g": 35.0,
+            "fat_g": 18.5,
+            "fiber_g": 2.4,
+            "iron_mg": 3.8,
+            "calcium_mg": 92.0,
+            "source": "USDA-FDC-171287"
+          },
+          "lunch": {
+            "portion_g": 420,
+            "calories": 510,
+            "protein_g": 13.2,
+            "carbs_g": 84.0,
+            "fat_g": 14.0,
+            "fiber_g": 7.1,
+            "iron_mg": 3.9,
+            "calcium_mg": 140.0,
+            "source": "USDA-FDC-171880"
+          },
+          "snack": {
+            "portion_g": 160,
+            "calories": 310,
+            "protein_g": 5.2,
+            "carbs_g": 42.0,
+            "fat_g": 14.5,
+            "fiber_g": 3.0,
+            "iron_mg": 1.9,
+            "calcium_mg": 40.0,
+            "source": "USDA-FDC-171840"
+          },
+          "dinner": {
+            "portion_g": 420,
+            "calories": 670,
+            "protein_g": 38.5,
+            "carbs_g": 54.0,
+            "fat_g": 34.0,
+            "fiber_g": 4.1,
+            "iron_mg": 4.2,
+            "calcium_mg": 130.0,
+            "source": "USDA-FDC-171099"
+          }
+        }
+      }
+    },
+    "daily_budget": {
+      "Monday": {
+        "day": "Monday",
+        "total_daily_cost_inr": 59375.0,
+        "cost_per_student_day_inr": 118.75,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Poha",
+            "cost_per_plate_inr": 6.37,
+            "batch_cost_inr": 3185.0
+          },
+          "lunch": {
+            "dish": "Aloo Gobi Matar with Phulka",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "snack": {
+            "dish": "Bread Pakoda with Green Chutney",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Palak Paneer with Missi Roti",
+            "cost_per_plate_inr": 42.38,
+            "batch_cost_inr": 21190.0
+          }
+        },
+        "critiques": []
+      },
+      "Tuesday": {
+        "day": "Tuesday",
+        "total_daily_cost_inr": 45084.0,
+        "cost_per_student_day_inr": 90.17,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Idli Sambar & Chutney",
+            "cost_per_plate_inr": 12.65,
+            "batch_cost_inr": 6325.0
+          },
+          "lunch": {
+            "dish": "Rajma Masala with Steamed Rice",
+            "cost_per_plate_inr": 20.5,
+            "batch_cost_inr": 10249.0
+          },
+          "snack": {
+            "dish": "Samosa with Tamarind Chutney & Tea",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Dal Tadka with Jeera Rice & Roti",
+            "cost_per_plate_inr": 22.02,
+            "batch_cost_inr": 11010.0
+          }
+        },
+        "critiques": []
+      },
+      "Wednesday": {
+        "day": "Wednesday",
+        "total_daily_cost_inr": 62749.0,
+        "cost_per_student_day_inr": 125.5,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Moong Dal Cheela with Mint Chutney",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "lunch": {
+            "dish": "Rajma Masala with Steamed Rice",
+            "cost_per_plate_inr": 20.5,
+            "batch_cost_inr": 10249.0
+          },
+          "snack": {
+            "dish": "Dhokla with Mustard Tempering",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Aloo Gobi Matar with Phulka",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          }
+        },
+        "critiques": []
+      },
+      "Thursday": {
+        "day": "Thursday",
+        "total_daily_cost_inr": 60606.0,
+        "cost_per_student_day_inr": 121.21,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Upma with Coconut Chutney",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "lunch": {
+            "dish": "Chole Bhature / Chole Kulche",
+            "cost_per_plate_inr": 16.21,
+            "batch_cost_inr": 8106.0
+          },
+          "snack": {
+            "dish": "Veg Cutlet with Tomato Ketchup",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Mixed Dal Panchmel with Khichdi",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          }
+        },
+        "critiques": []
+      },
+      "Friday": {
+        "day": "Friday",
+        "total_daily_cost_inr": 62874.0,
+        "cost_per_student_day_inr": 125.75,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Masala Dosa with Sambar",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "lunch": {
+            "dish": "Sambar Rice with Potato Fry & Papad",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "snack": {
+            "dish": "Bread Pakoda with Green Chutney",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Egg Curry with Jeera Rice & Chapati",
+            "cost_per_plate_inr": 20.75,
+            "batch_cost_inr": 10374.0
+          }
+        },
+        "critiques": []
+      },
+      "Saturday": {
+        "day": "Saturday",
+        "total_daily_cost_inr": 76745.0,
+        "cost_per_student_day_inr": 153.49,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Moong Dal Cheela with Mint Chutney",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "lunch": {
+            "dish": "Bhindi Masala with Chapati & Dal Fry",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "snack": {
+            "dish": "Dhokla with Mustard Tempering",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Paneer Butter Masala with Butter Roti",
+            "cost_per_plate_inr": 48.49,
+            "batch_cost_inr": 24245.0
+          }
+        },
+        "critiques": []
+      },
+      "Sunday": {
+        "day": "Sunday",
+        "total_daily_cost_inr": 75658.0,
+        "cost_per_student_day_inr": 151.32,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Egg Bhurji with Pav / Bread",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "lunch": {
+            "dish": "Vegetable Biryani with Boondi Raita",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "snack": {
+            "dish": "Samosa with Tamarind Chutney & Tea",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Butter Chicken with Naan / Roti",
+            "cost_per_plate_inr": 46.32,
+            "batch_cost_inr": 23158.0
+          }
+        },
+        "critiques": []
+      }
+    },
+    "total_weekly_cost_inr": 443091.0,
+    "weekly_budget_cap_inr": 577500.0,
+    "governance_evaluation": {
+      "status": "APPROVED",
+      "is_breach": false,
+      "requisition_inr": 443091.0,
+      "ceiling_inr": 577500.0,
+      "breach_amount_inr": 0.0,
+      "message": "Requisition of \u20b9443,091.00 is within weekly ceiling of \u20b9577,500.00. Auto-approved."
+    },
+    "procurement_items": [
+      {
+        "item": "Atta (Whole Wheat Flour)",
+        "quantity": 300,
+        "unit": "kg",
+        "unit_price_inr": 31.0,
+        "total_inr": 9300.0,
+        "supplier": "Shree Ganesh Agro"
+      },
+      {
+        "item": "Basmati Sella Rice",
+        "quantity": 350,
+        "unit": "kg",
+        "unit_price_inr": 52.0,
+        "total_inr": 18200.0,
+        "supplier": "Shree Ganesh Agro"
+      },
+      {
+        "item": "Toor Dal (Arhar)",
+        "quantity": 160,
+        "unit": "kg",
+        "unit_price_inr": 136.0,
+        "total_inr": 21760.0,
+        "supplier": "Kisan Pulse Mill"
+      },
+      {
+        "item": "Rajma (Chitra Kidney Beans)",
+        "quantity": 90,
+        "unit": "kg",
+        "unit_price_inr": 124.0,
+        "total_inr": 11160.0,
+        "supplier": "Kisan Pulse Mill"
+      },
+      {
+        "item": "Fresh Malai Paneer",
+        "quantity": 110,
+        "unit": "kg",
+        "unit_price_inr": 315.0,
+        "total_inr": 34650.0,
+        "supplier": "Amul Cooperative Wholesaler"
+      },
+      {
+        "item": "Pasteurized Toned Milk",
+        "quantity": 200,
+        "unit": "L",
+        "unit_price_inr": 51.0,
+        "total_inr": 10200.0,
+        "supplier": "Amul Cooperative Wholesaler"
+      },
+      {
+        "item": "Refined Mustard / Sunflower Oil",
+        "quantity": 120,
+        "unit": "L",
+        "unit_price_inr": 120.0,
+        "total_inr": 14400.0,
+        "supplier": "National Spices & Oils"
+      },
+      {
+        "item": "Broiler Chicken (Curry Cut)",
+        "quantity": 100,
+        "unit": "kg",
+        "unit_price_inr": 178.0,
+        "total_inr": 17800.0,
+        "supplier": "Venkateshwara Hatcheries"
+      }
+    ],
+    "conflicts_resolved": [
+      {
+        "conflict_id": "CONF-POTATO-01",
+        "agents_involved": [
+          "Budget-Agent",
+          "Variety-Agent"
+        ],
+        "description": "Budget-Agent favoured cheap potato dishes (4 meals), violating Variety-Agent's max 3 potato meals cap.",
+        "resolution": "Coordinator swapped Saturday breakfast 'Aloo Paratha with Curd & Pickle' to 'Moong Dal Cheela with Mint Chutney', reducing potato count to 3 and raising protein by +6.7g.",
+        "status": "RESOLVED",
+        "timestamp": "2026-09-09T06:22:11.326677"
+      },
+      {
+        "conflict_id": "CONF-WASTE-PROTEIN-02",
+        "agents_involved": [
+          "Nutrition-Agent",
+          "Variety-Agent"
+        ],
+        "description": "Tuesday lunch Kadhi Pakoda has 31.5% historical plate waste and Tuesday shows a protein deficit (57.2g vs 65g target).",
+        "resolution": "Coordinator replaced Tuesday lunch with 'Rajma Masala with Steamed Rice', eliminating the unpalatable dish and boosting Tuesday protein to 71.4g.",
+        "status": "RESOLVED",
+        "timestamp": "2026-09-09T06:22:11.326682"
+      }
+    ]
+  },
+  "week_8_breach": {
+    "session_state": {
+      "cycle_id": "CYCLE-2026-W08",
+      "semester_week": 8,
+      "planning_stage": "FINALIZED_DISPATCHED",
+      "draft_revision": 1,
+      "current_draft": {
+        "Monday": {
+          "breakfast": "Aloo Paratha with Curd & Pickle",
+          "lunch": "Paneer Butter Masala with Butter Roti",
+          "snack": "Samosa with Tamarind Chutney & Tea",
+          "dinner": "Butter Chicken with Naan / Roti"
+        },
+        "Tuesday": {
+          "breakfast": "Egg Bhurji with Pav / Bread",
+          "lunch": "Chole Bhature / Chole Kulche",
+          "snack": "Pav Bhaji with Filter Coffee / Tea",
+          "dinner": "Palak Paneer with Missi Roti"
+        },
+        "Wednesday": {
+          "breakfast": "Moong Dal Cheela with Mint Chutney",
+          "lunch": "Butter Chicken with Naan / Roti",
+          "snack": "Samosa with Tamarind Chutney & Tea",
+          "dinner": "Paneer Butter Masala with Butter Roti"
+        },
+        "Thursday": {
+          "breakfast": "Masala Dosa with Sambar",
+          "lunch": "Rajma Masala with Steamed Rice",
+          "snack": "Pav Bhaji with Filter Coffee / Tea",
+          "dinner": "Chicken Curry with Steamed Rice"
+        },
+        "Friday": {
+          "breakfast": "Aloo Paratha with Curd & Pickle",
+          "lunch": "Paneer Butter Masala with Butter Roti",
+          "snack": "Bread Pakoda with Green Chutney",
+          "dinner": "Butter Chicken with Naan / Roti"
+        },
+        "Saturday": {
+          "breakfast": "Idli Sambar & Chutney",
+          "lunch": "Chole Bhature / Chole Kulche",
+          "snack": "Pav Bhaji with Filter Coffee / Tea",
+          "dinner": "Palak Paneer with Missi Roti"
+        },
+        "Sunday": {
+          "breakfast": "Egg Bhurji with Pav / Bread",
+          "lunch": "Vegetable Biryani with Boondi Raita",
+          "snack": "Samosa with Tamarind Chutney & Tea",
+          "dinner": "Butter Chicken with Naan / Roti"
+        }
+      },
+      "active_conflicts": [],
+      "leftovers_allocated": [
+        {
+          "item": "Hybrid Tomatoes",
+          "quantity_kg": 48.0,
+          "assigned_meal": "Monday Lunch"
+        },
+        {
+          "item": "Cauliflower",
+          "quantity_kg": 35.0,
+          "assigned_meal": "Monday Lunch"
+        },
+        {
+          "item": "Fresh Spinach (Palak)",
+          "quantity_kg": 24.0,
+          "assigned_meal": "Monday Dinner"
+        },
+        {
+          "item": "Plain Curd / Dahi",
+          "quantity_kg": 45.0,
+          "assigned_meal": "Monday Dinner"
+        }
+      ],
+      "running_cost_estimate_inr": 634409.16,
+      "scratchpad": [
+        "Leftover-First Rule invoked: 4 items prioritized into Mon/Tue meals."
+      ]
+    },
+    "schedule": {
+      "Monday": {
+        "breakfast": "Aloo Paratha with Curd & Pickle",
+        "lunch": "Paneer Butter Masala with Butter Roti",
+        "snack": "Samosa with Tamarind Chutney & Tea",
+        "dinner": "Butter Chicken with Naan / Roti"
+      },
+      "Tuesday": {
+        "breakfast": "Egg Bhurji with Pav / Bread",
+        "lunch": "Chole Bhature / Chole Kulche",
+        "snack": "Pav Bhaji with Filter Coffee / Tea",
+        "dinner": "Palak Paneer with Missi Roti"
+      },
+      "Wednesday": {
+        "breakfast": "Moong Dal Cheela with Mint Chutney",
+        "lunch": "Butter Chicken with Naan / Roti",
+        "snack": "Samosa with Tamarind Chutney & Tea",
+        "dinner": "Paneer Butter Masala with Butter Roti"
+      },
+      "Thursday": {
+        "breakfast": "Masala Dosa with Sambar",
+        "lunch": "Rajma Masala with Steamed Rice",
+        "snack": "Pav Bhaji with Filter Coffee / Tea",
+        "dinner": "Chicken Curry with Steamed Rice"
+      },
+      "Friday": {
+        "breakfast": "Aloo Paratha with Curd & Pickle",
+        "lunch": "Paneer Butter Masala with Butter Roti",
+        "snack": "Bread Pakoda with Green Chutney",
+        "dinner": "Butter Chicken with Naan / Roti"
+      },
+      "Saturday": {
+        "breakfast": "Idli Sambar & Chutney",
+        "lunch": "Chole Bhature / Chole Kulche",
+        "snack": "Pav Bhaji with Filter Coffee / Tea",
+        "dinner": "Palak Paneer with Missi Roti"
+      },
+      "Sunday": {
+        "breakfast": "Egg Bhurji with Pav / Bread",
+        "lunch": "Vegetable Biryani with Boondi Raita",
+        "snack": "Samosa with Tamarind Chutney & Tea",
+        "dinner": "Butter Chicken with Naan / Roti"
+      }
+    },
+    "daily_nutrition": {
+      "Monday": {
+        "day": "Monday",
+        "calories": 2040,
+        "protein_g": 78.3,
+        "carbs_g": 210.0,
+        "fat_g": 101.7,
+        "iron_mg": 12.0,
+        "calcium_mg": 630.0,
+        "is_compliant": false,
+        "critiques": [
+          "CALORIC_DEFICIT: Monday provides 2040 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 280,
+            "calories": 420,
+            "protein_g": 9.8,
+            "carbs_g": 62.0,
+            "fat_g": 15.2,
+            "fiber_g": 5.4,
+            "iron_mg": 2.8,
+            "calcium_mg": 120.0,
+            "source": "USDA-FDC-173891"
+          },
+          "lunch": {
+            "portion_g": 380,
+            "calories": 640,
+            "protein_g": 24.8,
+            "carbs_g": 52.0,
+            "fat_g": 38.0,
+            "fiber_g": 5.2,
+            "iron_mg": 3.1,
+            "calcium_mg": 340.0,
+            "source": "USDA-FDC-170889"
+          },
+          "snack": {
+            "portion_g": 160,
+            "calories": 310,
+            "protein_g": 5.2,
+            "carbs_g": 42.0,
+            "fat_g": 14.5,
+            "fiber_g": 3.0,
+            "iron_mg": 1.9,
+            "calcium_mg": 40.0,
+            "source": "USDA-FDC-171840"
+          },
+          "dinner": {
+            "portion_g": 420,
+            "calories": 670,
+            "protein_g": 38.5,
+            "carbs_g": 54.0,
+            "fat_g": 34.0,
+            "fiber_g": 4.1,
+            "iron_mg": 4.2,
+            "calcium_mg": 130.0,
+            "source": "USDA-FDC-171099"
+          }
+        }
+      },
+      "Tuesday": {
+        "day": "Tuesday",
+        "calories": 1990,
+        "protein_g": 73.0,
+        "carbs_g": 233.0,
+        "fat_g": 85.5,
+        "iron_mg": 19.8,
+        "calcium_mg": 662.0,
+        "is_compliant": false,
+        "critiques": [
+          "CALORIC_DEFICIT: Tuesday provides 1990 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 240,
+            "calories": 390,
+            "protein_g": 21.0,
+            "carbs_g": 35.0,
+            "fat_g": 18.5,
+            "fiber_g": 2.4,
+            "iron_mg": 3.8,
+            "calcium_mg": 92.0,
+            "source": "USDA-FDC-171287"
+          },
+          "lunch": {
+            "portion_g": 400,
+            "calories": 680,
+            "protein_g": 18.0,
+            "carbs_g": 96.0,
+            "fat_g": 25.0,
+            "fiber_g": 11.0,
+            "iron_mg": 5.8,
+            "calcium_mg": 95.0,
+            "source": "USDA-FDC-173733"
+          },
+          "snack": {
+            "portion_g": 240,
+            "calories": 390,
+            "protein_g": 8.5,
+            "carbs_g": 54.0,
+            "fat_g": 16.0,
+            "fiber_g": 6.2,
+            "iron_mg": 3.4,
+            "calcium_mg": 65.0,
+            "source": "USDA-FDC-171860"
+          },
+          "dinner": {
+            "portion_g": 380,
+            "calories": 530,
+            "protein_g": 25.5,
+            "carbs_g": 48.0,
+            "fat_g": 26.0,
+            "fiber_g": 8.2,
+            "iron_mg": 6.8,
+            "calcium_mg": 410.0,
+            "source": "USDA-FDC-170455"
+          }
+        }
+      },
+      "Wednesday": {
+        "day": "Wednesday",
+        "calories": 1930,
+        "protein_g": 85.0,
+        "carbs_g": 190.0,
+        "fat_g": 94.5,
+        "iron_mg": 13.3,
+        "calcium_mg": 595.0,
+        "is_compliant": false,
+        "critiques": [
+          "CALORIC_DEFICIT: Wednesday provides 1930 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 220,
+            "calories": 310,
+            "protein_g": 16.5,
+            "carbs_g": 42.0,
+            "fat_g": 8.0,
+            "fiber_g": 6.5,
+            "iron_mg": 4.1,
+            "calcium_mg": 85.0,
+            "source": "USDA-FDC-172401"
+          },
+          "lunch": {
+            "portion_g": 420,
+            "calories": 670,
+            "protein_g": 38.5,
+            "carbs_g": 54.0,
+            "fat_g": 34.0,
+            "fiber_g": 4.1,
+            "iron_mg": 4.2,
+            "calcium_mg": 130.0,
+            "source": "USDA-FDC-171099"
+          },
+          "snack": {
+            "portion_g": 160,
+            "calories": 310,
+            "protein_g": 5.2,
+            "carbs_g": 42.0,
+            "fat_g": 14.5,
+            "fiber_g": 3.0,
+            "iron_mg": 1.9,
+            "calcium_mg": 40.0,
+            "source": "USDA-FDC-171840"
+          },
+          "dinner": {
+            "portion_g": 380,
+            "calories": 640,
+            "protein_g": 24.8,
+            "carbs_g": 52.0,
+            "fat_g": 38.0,
+            "fiber_g": 5.2,
+            "iron_mg": 3.1,
+            "calcium_mg": 340.0,
+            "source": "USDA-FDC-170889"
+          }
+        }
+      },
+      "Thursday": {
+        "day": "Thursday",
+        "calories": 1880,
+        "protein_g": 73.2,
+        "carbs_g": 276.0,
+        "fat_g": 53.8,
+        "iron_mg": 17.0,
+        "calcium_mg": 297.0,
+        "is_compliant": false,
+        "critiques": [
+          "CALORIC_DEFICIT: Thursday provides 1880 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 300,
+            "calories": 380,
+            "protein_g": 9.2,
+            "carbs_g": 64.0,
+            "fat_g": 10.1,
+            "fiber_g": 4.9,
+            "iron_mg": 2.9,
+            "calcium_mg": 52.0,
+            "source": "USDA-FDC-172202"
+          },
+          "lunch": {
+            "portion_g": 420,
+            "calories": 520,
+            "protein_g": 19.5,
+            "carbs_g": 86.0,
+            "fat_g": 10.2,
+            "fiber_g": 12.8,
+            "iron_mg": 6.2,
+            "calcium_mg": 110.0,
+            "source": "USDA-FDC-173740"
+          },
+          "snack": {
+            "portion_g": 240,
+            "calories": 390,
+            "protein_g": 8.5,
+            "carbs_g": 54.0,
+            "fat_g": 16.0,
+            "fiber_g": 6.2,
+            "iron_mg": 3.4,
+            "calcium_mg": 65.0,
+            "source": "USDA-FDC-171860"
+          },
+          "dinner": {
+            "portion_g": 440,
+            "calories": 590,
+            "protein_g": 36.0,
+            "carbs_g": 72.0,
+            "fat_g": 17.5,
+            "fiber_g": 4.2,
+            "iron_mg": 4.5,
+            "calcium_mg": 70.0,
+            "source": "USDA-FDC-171105"
+          }
+        }
+      },
+      "Friday": {
+        "day": "Friday",
+        "calories": 2060,
+        "protein_g": 80.5,
+        "carbs_g": 209.0,
+        "fat_g": 102.7,
+        "iron_mg": 12.3,
+        "calcium_mg": 638.0,
+        "is_compliant": false,
+        "critiques": [
+          "CALORIC_DEFICIT: Friday provides 2060 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 280,
+            "calories": 420,
+            "protein_g": 9.8,
+            "carbs_g": 62.0,
+            "fat_g": 15.2,
+            "fiber_g": 5.4,
+            "iron_mg": 2.8,
+            "calcium_mg": 120.0,
+            "source": "USDA-FDC-173891"
+          },
+          "lunch": {
+            "portion_g": 380,
+            "calories": 640,
+            "protein_g": 24.8,
+            "carbs_g": 52.0,
+            "fat_g": 38.0,
+            "fiber_g": 5.2,
+            "iron_mg": 3.1,
+            "calcium_mg": 340.0,
+            "source": "USDA-FDC-170889"
+          },
+          "snack": {
+            "portion_g": 170,
+            "calories": 330,
+            "protein_g": 7.4,
+            "carbs_g": 41.0,
+            "fat_g": 15.5,
+            "fiber_g": 3.5,
+            "iron_mg": 2.2,
+            "calcium_mg": 48.0,
+            "source": "USDA-FDC-171872"
+          },
+          "dinner": {
+            "portion_g": 420,
+            "calories": 670,
+            "protein_g": 38.5,
+            "carbs_g": 54.0,
+            "fat_g": 34.0,
+            "fiber_g": 4.1,
+            "iron_mg": 4.2,
+            "calcium_mg": 130.0,
+            "source": "USDA-FDC-171099"
+          }
+        }
+      },
+      "Saturday": {
+        "day": "Saturday",
+        "calories": 1940,
+        "protein_g": 63.5,
+        "carbs_g": 256.0,
+        "fat_g": 73.8,
+        "iron_mg": 19.2,
+        "calcium_mg": 638.0,
+        "is_compliant": false,
+        "critiques": [
+          "PROTEIN_DEFICIT: Saturday provides only 63.5g protein (ICMR target: >= 65.0g). Recommend swapping low-protein item with Chole, Rajma, or Eggs.",
+          "CALORIC_DEFICIT: Saturday provides 1940 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 320,
+            "calories": 340,
+            "protein_g": 11.5,
+            "carbs_g": 58.0,
+            "fat_g": 6.8,
+            "fiber_g": 6.2,
+            "iron_mg": 3.2,
+            "calcium_mg": 68.0,
+            "source": "USDA-FDC-172184"
+          },
+          "lunch": {
+            "portion_g": 400,
+            "calories": 680,
+            "protein_g": 18.0,
+            "carbs_g": 96.0,
+            "fat_g": 25.0,
+            "fiber_g": 11.0,
+            "iron_mg": 5.8,
+            "calcium_mg": 95.0,
+            "source": "USDA-FDC-173733"
+          },
+          "snack": {
+            "portion_g": 240,
+            "calories": 390,
+            "protein_g": 8.5,
+            "carbs_g": 54.0,
+            "fat_g": 16.0,
+            "fiber_g": 6.2,
+            "iron_mg": 3.4,
+            "calcium_mg": 65.0,
+            "source": "USDA-FDC-171860"
+          },
+          "dinner": {
+            "portion_g": 380,
+            "calories": 530,
+            "protein_g": 25.5,
+            "carbs_g": 48.0,
+            "fat_g": 26.0,
+            "fiber_g": 8.2,
+            "iron_mg": 6.8,
+            "calcium_mg": 410.0,
+            "source": "USDA-FDC-170455"
+          }
+        }
+      },
+      "Sunday": {
+        "day": "Sunday",
+        "calories": 1880,
+        "protein_g": 77.9,
+        "carbs_g": 215.0,
+        "fat_g": 81.0,
+        "iron_mg": 13.8,
+        "calcium_mg": 402.0,
+        "is_compliant": false,
+        "critiques": [
+          "CALORIC_DEFICIT: Sunday provides 1880 kcal (min: 2200)."
+        ],
+        "dish_stats": {
+          "breakfast": {
+            "portion_g": 240,
+            "calories": 390,
+            "protein_g": 21.0,
+            "carbs_g": 35.0,
+            "fat_g": 18.5,
+            "fiber_g": 2.4,
+            "iron_mg": 3.8,
+            "calcium_mg": 92.0,
+            "source": "USDA-FDC-171287"
+          },
+          "lunch": {
+            "portion_g": 420,
+            "calories": 510,
+            "protein_g": 13.2,
+            "carbs_g": 84.0,
+            "fat_g": 14.0,
+            "fiber_g": 7.1,
+            "iron_mg": 3.9,
+            "calcium_mg": 140.0,
+            "source": "USDA-FDC-171880"
+          },
+          "snack": {
+            "portion_g": 160,
+            "calories": 310,
+            "protein_g": 5.2,
+            "carbs_g": 42.0,
+            "fat_g": 14.5,
+            "fiber_g": 3.0,
+            "iron_mg": 1.9,
+            "calcium_mg": 40.0,
+            "source": "USDA-FDC-171840"
+          },
+          "dinner": {
+            "portion_g": 420,
+            "calories": 670,
+            "protein_g": 38.5,
+            "carbs_g": 54.0,
+            "fat_g": 34.0,
+            "fiber_g": 4.1,
+            "iron_mg": 4.2,
+            "calcium_mg": 130.0,
+            "source": "USDA-FDC-171099"
+          }
+        }
+      }
+    },
+    "daily_budget": {
+      "Monday": {
+        "day": "Monday",
+        "total_daily_cost_inr": 71193.0,
+        "cost_per_student_day_inr": 142.39,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Aloo Paratha with Curd & Pickle",
+            "cost_per_plate_inr": 12.58,
+            "batch_cost_inr": 6290.0
+          },
+          "lunch": {
+            "dish": "Paneer Butter Masala with Butter Roti",
+            "cost_per_plate_inr": 48.49,
+            "batch_cost_inr": 24245.0
+          },
+          "snack": {
+            "dish": "Samosa with Tamarind Chutney & Tea",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Butter Chicken with Naan / Roti",
+            "cost_per_plate_inr": 46.32,
+            "batch_cost_inr": 23158.0
+          }
+        },
+        "critiques": []
+      },
+      "Tuesday": {
+        "day": "Tuesday",
+        "total_daily_cost_inr": 64296.0,
+        "cost_per_student_day_inr": 128.59,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Egg Bhurji with Pav / Bread",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "lunch": {
+            "dish": "Chole Bhature / Chole Kulche",
+            "cost_per_plate_inr": 16.21,
+            "batch_cost_inr": 8106.0
+          },
+          "snack": {
+            "dish": "Pav Bhaji with Filter Coffee / Tea",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Palak Paneer with Missi Roti",
+            "cost_per_plate_inr": 42.38,
+            "batch_cost_inr": 21190.0
+          }
+        },
+        "critiques": []
+      },
+      "Wednesday": {
+        "day": "Wednesday",
+        "total_daily_cost_inr": 82403.0,
+        "cost_per_student_day_inr": 164.81,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Moong Dal Cheela with Mint Chutney",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "lunch": {
+            "dish": "Butter Chicken with Naan / Roti",
+            "cost_per_plate_inr": 46.32,
+            "batch_cost_inr": 23158.0
+          },
+          "snack": {
+            "dish": "Samosa with Tamarind Chutney & Tea",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Paneer Butter Masala with Butter Roti",
+            "cost_per_plate_inr": 48.49,
+            "batch_cost_inr": 24245.0
+          }
+        },
+        "critiques": []
+      },
+      "Thursday": {
+        "day": "Thursday",
+        "total_daily_cost_inr": 62749.0,
+        "cost_per_student_day_inr": 125.5,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Masala Dosa with Sambar",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "lunch": {
+            "dish": "Rajma Masala with Steamed Rice",
+            "cost_per_plate_inr": 20.5,
+            "batch_cost_inr": 10249.0
+          },
+          "snack": {
+            "dish": "Pav Bhaji with Filter Coffee / Tea",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Chicken Curry with Steamed Rice",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          }
+        },
+        "critiques": []
+      },
+      "Friday": {
+        "day": "Friday",
+        "total_daily_cost_inr": 71193.0,
+        "cost_per_student_day_inr": 142.39,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Aloo Paratha with Curd & Pickle",
+            "cost_per_plate_inr": 12.58,
+            "batch_cost_inr": 6290.0
+          },
+          "lunch": {
+            "dish": "Paneer Butter Masala with Butter Roti",
+            "cost_per_plate_inr": 48.49,
+            "batch_cost_inr": 24245.0
+          },
+          "snack": {
+            "dish": "Bread Pakoda with Green Chutney",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Butter Chicken with Naan / Roti",
+            "cost_per_plate_inr": 46.32,
+            "batch_cost_inr": 23158.0
+          }
+        },
+        "critiques": []
+      },
+      "Saturday": {
+        "day": "Saturday",
+        "total_daily_cost_inr": 53121.0,
+        "cost_per_student_day_inr": 106.24,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Idli Sambar & Chutney",
+            "cost_per_plate_inr": 12.65,
+            "batch_cost_inr": 6325.0
+          },
+          "lunch": {
+            "dish": "Chole Bhature / Chole Kulche",
+            "cost_per_plate_inr": 16.21,
+            "batch_cost_inr": 8106.0
+          },
+          "snack": {
+            "dish": "Pav Bhaji with Filter Coffee / Tea",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Palak Paneer with Missi Roti",
+            "cost_per_plate_inr": 42.38,
+            "batch_cost_inr": 21190.0
+          }
+        },
+        "critiques": []
+      },
+      "Sunday": {
+        "day": "Sunday",
+        "total_daily_cost_inr": 75658.0,
+        "cost_per_student_day_inr": 151.32,
+        "is_within_budget": true,
+        "plate_breakdown": {
+          "breakfast": {
+            "dish": "Egg Bhurji with Pav / Bread",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "lunch": {
+            "dish": "Vegetable Biryani with Boondi Raita",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "snack": {
+            "dish": "Samosa with Tamarind Chutney & Tea",
+            "cost_per_plate_inr": 35.0,
+            "batch_cost_inr": 17500.0
+          },
+          "dinner": {
+            "dish": "Butter Chicken with Naan / Roti",
+            "cost_per_plate_inr": 46.32,
+            "batch_cost_inr": 23158.0
+          }
+        },
+        "critiques": []
+      }
+    },
+    "total_weekly_cost_inr": 634409.16,
+    "weekly_budget_cap_inr": 577500.0,
+    "governance_evaluation": {
+      "approval_id": "GATE-BREACH-WK8-1788934931",
+      "week_number": 8,
+      "status": "COMMITTEE_APPROVED",
+      "total_requisition_inr": 634409.16,
+      "ceiling_inr": 577500.0,
+      "breach_amount_inr": 56909.16,
+      "breach_percentage": 9.85,
+      "justification": "Diwali Cultural Festival Week with 4 feast dinners and high protein rotation",
+      "required_signatories": [
+        "Mess Warden",
+        "Student General Secretary (Mess)",
+        "Mess Manager"
+      ],
+      "signatures_recorded": {
+        "Student General Secretary (Mess)": {
+          "name": "Aarav Sharma",
+          "decision": "APPROVE",
+          "comments": "Student body explicitly voted for grand Diwali banquet. The surplus will be amortized over lower consumption during post-exam weeks.",
+          "signed_at": "2026-09-09T06:22:11.328489Z"
+        },
+        "Mess Warden": {
+          "name": "Prof. K. R. Ramanathan",
+          "decision": "APPROVE",
+          "comments": "Approved as an exceptional cultural fest expenditure against hostel reserve corpus fund.",
+          "signed_at": "2026-09-09T06:22:11.328508Z"
+        },
+        "Mess Manager": {
+          "name": "S. Sundaram",
+          "decision": "APPROVE",
+          "comments": "Verified supplier rates with APMC Mandi. Bulk discount applied on dry fruits and ghee.",
+          "signed_at": "2026-09-09T06:22:11.328519Z"
+        }
+      },
+      "line_items": [
+        {
+          "item": "Atta (Whole Wheat Flour)",
+          "quantity": 300,
+          "unit": "kg",
+          "unit_price_inr": 31.0,
+          "total_inr": 9300.0,
+          "supplier": "Shree Ganesh Agro"
+        },
+        {
+          "item": "Basmati Sella Rice",
+          "quantity": 350,
+          "unit": "kg",
+          "unit_price_inr": 52.0,
+          "total_inr": 18200.0,
+          "supplier": "Shree Ganesh Agro"
+        },
+        {
+          "item": "Toor Dal (Arhar)",
+          "quantity": 160,
+          "unit": "kg",
+          "unit_price_inr": 136.0,
+          "total_inr": 21760.0,
+          "supplier": "Kisan Pulse Mill"
+        },
+        {
+          "item": "Rajma (Chitra Kidney Beans)",
+          "quantity": 90,
+          "unit": "kg",
+          "unit_price_inr": 124.0,
+          "total_inr": 11160.0,
+          "supplier": "Kisan Pulse Mill"
+        },
+        {
+          "item": "Fresh Malai Paneer",
+          "quantity": 110,
+          "unit": "kg",
+          "unit_price_inr": 315.0,
+          "total_inr": 34650.0,
+          "supplier": "Amul Cooperative Wholesaler"
+        },
+        {
+          "item": "Pasteurized Toned Milk",
+          "quantity": 200,
+          "unit": "L",
+          "unit_price_inr": 51.0,
+          "total_inr": 10200.0,
+          "supplier": "Amul Cooperative Wholesaler"
+        },
+        {
+          "item": "Refined Mustard / Sunflower Oil",
+          "quantity": 120,
+          "unit": "L",
+          "unit_price_inr": 120.0,
+          "total_inr": 14400.0,
+          "supplier": "National Spices & Oils"
+        },
+        {
+          "item": "Broiler Chicken (Curry Cut)",
+          "quantity": 100,
+          "unit": "kg",
+          "unit_price_inr": 178.0,
+          "total_inr": 17800.0,
+          "supplier": "Venkateshwara Hatcheries"
+        }
+      ],
+      "created_at": "2026-09-09T06:22:11.328436Z"
+    },
+    "procurement_items": [
+      {
+        "item": "Atta (Whole Wheat Flour)",
+        "quantity": 300,
+        "unit": "kg",
+        "unit_price_inr": 31.0,
+        "total_inr": 9300.0,
+        "supplier": "Shree Ganesh Agro"
+      },
+      {
+        "item": "Basmati Sella Rice",
+        "quantity": 350,
+        "unit": "kg",
+        "unit_price_inr": 52.0,
+        "total_inr": 18200.0,
+        "supplier": "Shree Ganesh Agro"
+      },
+      {
+        "item": "Toor Dal (Arhar)",
+        "quantity": 160,
+        "unit": "kg",
+        "unit_price_inr": 136.0,
+        "total_inr": 21760.0,
+        "supplier": "Kisan Pulse Mill"
+      },
+      {
+        "item": "Rajma (Chitra Kidney Beans)",
+        "quantity": 90,
+        "unit": "kg",
+        "unit_price_inr": 124.0,
+        "total_inr": 11160.0,
+        "supplier": "Kisan Pulse Mill"
+      },
+      {
+        "item": "Fresh Malai Paneer",
+        "quantity": 110,
+        "unit": "kg",
+        "unit_price_inr": 315.0,
+        "total_inr": 34650.0,
+        "supplier": "Amul Cooperative Wholesaler"
+      },
+      {
+        "item": "Pasteurized Toned Milk",
+        "quantity": 200,
+        "unit": "L",
+        "unit_price_inr": 51.0,
+        "total_inr": 10200.0,
+        "supplier": "Amul Cooperative Wholesaler"
+      },
+      {
+        "item": "Refined Mustard / Sunflower Oil",
+        "quantity": 120,
+        "unit": "L",
+        "unit_price_inr": 120.0,
+        "total_inr": 14400.0,
+        "supplier": "National Spices & Oils"
+      },
+      {
+        "item": "Broiler Chicken (Curry Cut)",
+        "quantity": 100,
+        "unit": "kg",
+        "unit_price_inr": 178.0,
+        "total_inr": 17800.0,
+        "supplier": "Venkateshwara Hatcheries"
+      }
+    ],
+    "conflicts_resolved": []
+  },
+  "approval_gate_case": {
+    "approval_id": "GATE-BREACH-WK8-1788934931",
+    "week_number": 8,
+    "status": "COMMITTEE_APPROVED",
+    "total_requisition_inr": 634409.16,
+    "ceiling_inr": 577500.0,
+    "breach_amount_inr": 56909.16,
+    "breach_percentage": 9.85,
+    "justification": "Diwali Cultural Festival Week with 4 feast dinners and high protein rotation",
+    "required_signatories": [
+      "Mess Warden",
+      "Student General Secretary (Mess)",
+      "Mess Manager"
+    ],
+    "signatures_recorded": {
+      "Student General Secretary (Mess)": {
+        "name": "Aarav Sharma",
+        "decision": "APPROVE",
+        "comments": "Student body explicitly voted for grand Diwali banquet. The surplus will be amortized over lower consumption during post-exam weeks.",
+        "signed_at": "2026-09-09T06:22:11.328489Z"
+      },
+      "Mess Warden": {
+        "name": "Prof. K. R. Ramanathan",
+        "decision": "APPROVE",
+        "comments": "Approved as an exceptional cultural fest expenditure against hostel reserve corpus fund.",
+        "signed_at": "2026-09-09T06:22:11.328508Z"
+      },
+      "Mess Manager": {
+        "name": "S. Sundaram",
+        "decision": "APPROVE",
+        "comments": "Verified supplier rates with APMC Mandi. Bulk discount applied on dry fruits and ghee.",
+        "signed_at": "2026-09-09T06:22:11.328519Z"
+      }
+    },
+    "line_items": [
+      {
+        "item": "Atta (Whole Wheat Flour)",
+        "quantity": 300,
+        "unit": "kg",
+        "unit_price_inr": 31.0,
+        "total_inr": 9300.0,
+        "supplier": "Shree Ganesh Agro"
+      },
+      {
+        "item": "Basmati Sella Rice",
+        "quantity": 350,
+        "unit": "kg",
+        "unit_price_inr": 52.0,
+        "total_inr": 18200.0,
+        "supplier": "Shree Ganesh Agro"
+      },
+      {
+        "item": "Toor Dal (Arhar)",
+        "quantity": 160,
+        "unit": "kg",
+        "unit_price_inr": 136.0,
+        "total_inr": 21760.0,
+        "supplier": "Kisan Pulse Mill"
+      },
+      {
+        "item": "Rajma (Chitra Kidney Beans)",
+        "quantity": 90,
+        "unit": "kg",
+        "unit_price_inr": 124.0,
+        "total_inr": 11160.0,
+        "supplier": "Kisan Pulse Mill"
+      },
+      {
+        "item": "Fresh Malai Paneer",
+        "quantity": 110,
+        "unit": "kg",
+        "unit_price_inr": 315.0,
+        "total_inr": 34650.0,
+        "supplier": "Amul Cooperative Wholesaler"
+      },
+      {
+        "item": "Pasteurized Toned Milk",
+        "quantity": 200,
+        "unit": "L",
+        "unit_price_inr": 51.0,
+        "total_inr": 10200.0,
+        "supplier": "Amul Cooperative Wholesaler"
+      },
+      {
+        "item": "Refined Mustard / Sunflower Oil",
+        "quantity": 120,
+        "unit": "L",
+        "unit_price_inr": 120.0,
+        "total_inr": 14400.0,
+        "supplier": "National Spices & Oils"
+      },
+      {
+        "item": "Broiler Chicken (Curry Cut)",
+        "quantity": 100,
+        "unit": "kg",
+        "unit_price_inr": 178.0,
+        "total_inr": 17800.0,
+        "supplier": "Venkateshwara Hatcheries"
+      }
+    ],
+    "created_at": "2026-09-09T06:22:11.328436Z"
+  },
+  "audit_log": [
+    {
+      "index": 0,
+      "timestamp": "2026-09-09T06:22:11.323265Z",
+      "actor": "SYSTEM_INIT",
+      "action": "GENESIS_AUDIT_BLOCK",
+      "details": {
+        "message": "Hostel Mess Audit Trail Initialized",
+        "semester": "Fall 2026"
+      },
+      "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "810647a071cb5b847bc3c2200352e463af960a14d1e679c2378c9d05f3b1fcb1"
+    },
+    {
+      "index": 1,
+      "timestamp": "2026-09-09T06:22:11.327763Z",
+      "actor": "GovernanceGate",
+      "action": "AUTO_APPROVED_WITHIN_BUDGET",
+      "details": {
+        "week_number": 6,
+        "requisition_inr": 443091.0,
+        "ceiling_inr": 577500.0,
+        "item_count": 8
+      },
+      "previous_hash": "810647a071cb5b847bc3c2200352e463af960a14d1e679c2378c9d05f3b1fcb1",
+      "hash": "71d2ef7e4051e21dbdbb7ec1d43b087dc9530c584566504cb46651bfdea32951"
+    },
+    {
+      "index": 2,
+      "timestamp": "2026-09-09T06:22:11.328446Z",
+      "actor": "GovernanceGate",
+      "action": "BUDGET_BREACH_DETECTED",
+      "details": {
+        "approval_id": "GATE-BREACH-WK8-1788934931",
+        "week_number": 8,
+        "requisition_inr": 634409.16,
+        "ceiling_inr": 577500.0,
+        "breach_inr": 56909.16,
+        "reason": "Diwali Cultural Festival Week with 4 feast dinners and high protein rotation"
+      },
+      "previous_hash": "71d2ef7e4051e21dbdbb7ec1d43b087dc9530c584566504cb46651bfdea32951",
+      "hash": "5ba3e1058e9803adf9d165a2c6945028de50acf6c07fcf9286382d2c391cd003"
+    },
+    {
+      "index": 3,
+      "timestamp": "2026-09-09T06:22:11.328493Z",
+      "actor": "Student General Secretary (Mess):Aarav Sharma",
+      "action": "COMMITTEE_SIGNATURE_APPROVE",
+      "details": {
+        "approval_id": "GATE-BREACH-WK8-1788934931",
+        "decision": "APPROVE",
+        "comments": "Student body explicitly voted for grand Diwali banquet. The surplus will be amortized over lower consumption during post-exam weeks."
+      },
+      "previous_hash": "5ba3e1058e9803adf9d165a2c6945028de50acf6c07fcf9286382d2c391cd003",
+      "hash": "9ed2c10cdd0049d2486428393e72bac0059def24a2f8ca1e1dc87552b867d44d"
+    },
+    {
+      "index": 4,
+      "timestamp": "2026-09-09T06:22:11.328510Z",
+      "actor": "Mess Warden:Prof. K. R. Ramanathan",
+      "action": "COMMITTEE_SIGNATURE_APPROVE",
+      "details": {
+        "approval_id": "GATE-BREACH-WK8-1788934931",
+        "decision": "APPROVE",
+        "comments": "Approved as an exceptional cultural fest expenditure against hostel reserve corpus fund."
+      },
+      "previous_hash": "9ed2c10cdd0049d2486428393e72bac0059def24a2f8ca1e1dc87552b867d44d",
+      "hash": "07be669c3f239fd357f70e4e5f0f52d5bfd511075782e709699ee45ef3f1273f"
+    },
+    {
+      "index": 5,
+      "timestamp": "2026-09-09T06:22:11.328521Z",
+      "actor": "Mess Manager:S. Sundaram",
+      "action": "COMMITTEE_SIGNATURE_APPROVE",
+      "details": {
+        "approval_id": "GATE-BREACH-WK8-1788934931",
+        "decision": "APPROVE",
+        "comments": "Verified supplier rates with APMC Mandi. Bulk discount applied on dry fruits and ghee."
+      },
+      "previous_hash": "07be669c3f239fd357f70e4e5f0f52d5bfd511075782e709699ee45ef3f1273f",
+      "hash": "33794adf846a440b30791e2b800772d9af5e12904087da50583f3ffb781a696a"
+    },
+    {
+      "index": 6,
+      "timestamp": "2026-09-09T06:22:11.328534Z",
+      "actor": "GovernanceGate",
+      "action": "BUDGET_BREACH_COMMITTEE_RATIFIED",
+      "details": {
+        "approval_id": "GATE-BREACH-WK8-1788934931",
+        "approved_amount_inr": 634409.16,
+        "signatories": [
+          "Student General Secretary (Mess)",
+          "Mess Warden",
+          "Mess Manager"
+        ]
+      },
+      "previous_hash": "33794adf846a440b30791e2b800772d9af5e12904087da50583f3ffb781a696a",
+      "hash": "c1c486f53710b7f4720b21bc4608a0a4860605da1c9c9fae3521ee9b3b28d583"
+    }
+  ]
+}
