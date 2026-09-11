@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Hostel Mess Operations Agent | Standing Autonomous System",
-  description: "Standing operations agent system for weekly menu planning, ICMR nutrition targets, budget governance, and pantry leftover utilization.",
+  title: "HostelOps | Resident-first operations",
+  description: "Simple, accountable operations for hostel meals, room allocation, and maintenance.",
 };
 
 export default function RootLayout({

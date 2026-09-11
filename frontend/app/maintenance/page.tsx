@@ -1,0 +1,3 @@
+import { Wrench } from "lucide-react";
+import AgentPage from "@/components/AgentPage";
+export default function MaintenancePage() { return <AgentPage eyebrow="Maintenance agent" title="Keep every issue visible until it is fixed." description="Create clear work orders, escalate urgent risks, and let residents confirm the result." icon={Wrench} status="18 open · 4 urgent" items={[{ title: "Water leakage · 2A-112", detail: "Plumber assigned 18 minutes ago.", status: "Urgent" }, { title: "Cleaning request · 1C-208", detail: "Scheduled for 14:00–15:00.", status: "Scheduled" }, { title: "Fan repair · 3B-214", detail: "Work complete; waiting for resident confirmation.", status: "Confirm" }]} />; }

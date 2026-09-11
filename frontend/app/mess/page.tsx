@@ -1,0 +1,3 @@
+import { UtensilsCrossed } from "lucide-react";
+import AgentPage from "@/components/AgentPage";
+export default function MessPage() { return <AgentPage eyebrow="Mess agent" title="Better meals, fewer follow-ups." description="Plan meals around demand and pantry stock, then let a manager approve the order." icon={UtensilsCrossed} status="On track" items={[{ title: "Milk, vegetables & dal", detail: "Delivery confirmation due by 17:00.", status: "PO #MES-204" }, { title: "Tomatoes in pantry", detail: "Use within 48 hours to avoid waste.", status: "Priority" }, { title: "Lunch feedback", detail: "Add a non-spicy option tomorrow.", status: "Review" }]} />; }

@@ -1,0 +1,3 @@
+import { BedDouble } from "lucide-react";
+import AgentPage from "@/components/AgentPage";
+export default function RoomsPage() { return <AgentPage eyebrow="Room allocation agent" title="Room offers with a clear reason." description="Use published rules, named review, and an appeal trail for every allocation." icon={BedDouble} status="13 pending" items={[{ title: "Priority verification", detail: "Applications need document review.", status: "13 pending" }, { title: "Room 3B-214", detail: "Offer expires tomorrow; student notified.", status: "Offer sent" }, { title: "Appeal cases", detail: "Two cases are scheduled for warden review.", status: "Review" }]} />; }
