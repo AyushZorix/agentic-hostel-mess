@@ -103,3 +103,182 @@ export async function getMCPResources() {
   return res.json();
 }
 
+// Room Allocation APIs
+export async function getRoomsStatus() {
+  const res = await fetch(`${API_BASE_URL}/api/rooms/status`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch room status");
+  return res.json();
+}
+
+export async function getRoomRequests() {
+  const res = await fetch(`${API_BASE_URL}/api/rooms/requests`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch room requests");
+  return res.json();
+}
+
+export async function createRoomRequest(data: {
+  student_id: string;
+  student_name: string;
+  year_of_study: number;
+  distance_km: number;
+  has_medical_priority: boolean;
+  preferred_type: string;
+  special_notes?: string;
+}) {
+  const res = await fetch(`${API_BASE_URL}/api/rooms/request/create`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to submit room application");
+  return res.json();
+}
+
+export async function allocateRooms() {
+  const res = await fetch(`${API_BASE_URL}/api/rooms/allocate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
+  if (!res.ok) throw new Error("Failed to run room allocation agent");
+  return res.json();
+}
+
+// Vendor Voice Call API (Twilio + ElevenLabs Agent)
+export async function triggerVendorCall(data?: {
+  vendor_name?: string;
+  vendor_phone?: string;
+  po_number?: string;
+  items_summary?: string[];
+  total_amount_inr?: number;
+  delivery_window?: string;
+  elevenlabs_agent_id?: string;
+}) {
+  const res = await fetch(`${API_BASE_URL}/api/vendor/call`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data || {})
+  });
+  if (!res.ok) throw new Error("Failed to trigger vendor call");
+  return res.json();
+}
+
+export async function fetchVendorCallDetails(conversationId: string) {
+  const res = await fetch(`${API_BASE_URL}/api/vendor/call/${conversationId}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch call details");
+  return res.json();
+}
+
+// Vendor Management APIs (PostgreSQL)
+export async function fetchVendors() {
+  const res = await fetch(`${API_BASE_URL}/api/vendors`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch vendors");
+  return res.json();
+}
+
+export async function createVendor(data: {
+  name: string;
+  phone: string;
+  category?: string;
+  contact_person?: string;
+  default_delivery_window?: string;
+}) {
+  const res = await fetch(`${API_BASE_URL}/api/vendors/create`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to add vendor");
+  return res.json();
+}
+
+export async function fetchCallLogs() {
+  const res = await fetch(`${API_BASE_URL}/api/vendor/calls/logs`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch call logs");
+  return res.json();
+}
+
+// Maintenance APIs (PostgreSQL)
+export async function fetchMaintenanceTickets() {
+  const res = await fetch(`${API_BASE_URL}/api/maintenance/tickets`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch tickets");
+  return res.json();
+}
+
+export async function createMaintenanceTicket(data: {
+  room_or_area: string;
+  category?: string;
+  issue: string;
+  severity?: string;
+  assigned_to?: string;
+}) {
+  const res = await fetch(`${API_BASE_URL}/api/maintenance/tickets/create`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to create ticket");
+  return res.json();
+}
+
+export async function resolveMaintenanceTicket(ticketId: string) {
+  const res = await fetch(`${API_BASE_URL}/api/maintenance/tickets/${ticketId}/resolve`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
+  if (!res.ok) throw new Error("Failed to resolve ticket");
+  return res.json();
+}
+
+export async function fetchDeliveries() {
+  const res = await fetch(`${API_BASE_URL}/api/mess/deliveries`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch deliveries");
+  return res.json();
+}
+
+export async function intakeDelivery(poNumber: string, itemsToRestock?: any[]) {
+  const res = await fetch(`${API_BASE_URL}/api/mess/deliveries/intake`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ po_number: poNumber, items_to_restock: itemsToRestock })
+  });
+  if (!res.ok) throw new Error("Failed to intake vendor delivery");
+  return res.json();
+}
+
+export async function predictMessDemand(data: {
+  day: string;
+  is_weekend?: boolean;
+  exam_period?: boolean;
+  weather_condition?: string;
+}) {
+  const res = await fetch(`${API_BASE_URL}/api/mess/predictive-procurement`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to predict mess demand");
+  return res.json();
+}
+
+export async function predictRoomCohorts() {
+  const res = await fetch(`${API_BASE_URL}/api/rooms/predictive-allocation`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
+  if (!res.ok) throw new Error("Failed to predict room cohorts");
+  return res.json();
+}
+
+export async function predictMaintenanceRisk(data: {
+  room_or_area: string;
+  issue_description: string;
+  appliance_age_months?: number;
+}) {
+  const res = await fetch(`${API_BASE_URL}/api/maintenance/predictive-triage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to predict maintenance risk");
+  return res.json();
+}

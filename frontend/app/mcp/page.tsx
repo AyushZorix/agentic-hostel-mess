@@ -280,27 +280,62 @@ export default function McpPage() {
               <div className="space-y-2">
                 {[
                   {
-                    name: "vendor_price_list",
+                    name: "mess_vendor_prices",
                     desc: "Fetch wholesale APMC Mandi commodity rates with bulk tier discounts and supplier info.",
-                    sampleArgs: { category: "Grains & Flour", max_price: 60 }
+                    sampleArgs: { category: "Vegetables", max_price: 60 }
                   },
                   {
-                    name: "inventory_table",
+                    name: "mess_pantry_inventory",
                     desc: "Inspect pantry stock levels, lot numbers, batch IDs, and days-to-expiration countdowns.",
                     sampleArgs: { filter_expiring_only: true }
                   },
                   {
-                    name: "mock_ordering_api",
+                    name: "mess_order_and_budget_check",
                     desc: "Submit wholesale purchase orders with automated weekly budget ceiling checks.",
                     sampleArgs: {
                       week_number: 6,
                       requested_by: "Menu-Coordinator",
-                      notes: "Routine staples order for Week 6",
                       items: [
                         { item: "Atta (Whole Wheat Flour)", quantity: 300 },
                         { item: "Fresh Malai Paneer", quantity: 120 }
                       ]
                     }
+                  },
+                  {
+                    name: "mess_ingest_vendor_delivery",
+                    desc: "Intake confirmed order items from vendor voice call into live PostgreSQL pantry inventory.",
+                    sampleArgs: {
+                      po_number: "PO-MES-204",
+                      items: [
+                        { item: "Farm Fresh Tomatoes", quantity_added: 50, unit: "kg" },
+                        { item: "Standardized Milk", quantity_added: 40, unit: "L" }
+                      ]
+                    }
+                  },
+                  {
+                    name: "rooms_query_vacancies",
+                    desc: "Query live room vacancies across Block A (Single), Block B (Double), and Block C (Triple).",
+                    sampleArgs: { preferred_block: "Block A", room_type: "Single" }
+                  },
+                  {
+                    name: "rooms_score_applicant",
+                    desc: "Compute multi-factor priority score (Seniority + Medical + Distance) for student housing applicant.",
+                    sampleArgs: { student_name: "Aarav Sharma", year_of_study: 4, distance_km: 1450, has_medical_priority: true }
+                  },
+                  {
+                    name: "rooms_execute_allocation",
+                    desc: "Autonomous room allocation agent mapping applicant to optimal room based on priority score.",
+                    sampleArgs: { student_id: "STU-402", student_name: "Aarav Sharma", priority_score: 98.5, preferred_type: "Single" }
+                  },
+                  {
+                    name: "maintenance_triage_hazard",
+                    desc: "Autonomous NLP hazard detection calculating severity (CRITICAL, HIGH), SLA hours, and failure probability.",
+                    sampleArgs: { room_or_area: "Block A - Room 201", issue_description: "Ceiling fan regulator short circuit sparking", appliance_age_months: 24 }
+                  },
+                  {
+                    name: "maintenance_dispatch_technician",
+                    desc: "Dispatch designated technician to room hazard and initiate SLA countdown.",
+                    sampleArgs: { room_or_area: "Block A - Room 201", issue: "Ceiling fan short circuit", severity: "CRITICAL", assigned_to: "Electrician Team A" }
                   }
                 ].map((tool) => (
                   <button
