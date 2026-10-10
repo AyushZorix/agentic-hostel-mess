@@ -36,13 +36,85 @@ export async function getPantryInventory(filterExpiring: boolean = false) {
   return res.json();
 }
 
-export async function updatePantryItem(item: string, quantityDelta: number) {
+export async function updatePantryItem(item: string, quantityDelta: number, forceAutoCall: boolean = false) {
   const res = await fetch(`${API_BASE_URL}/api/inventory/update`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ item, quantity_delta: quantityDelta })
+    body: JSON.stringify({ item, quantity_delta: quantityDelta, force_auto_call: forceAutoCall })
   });
   if (!res.ok) throw new Error("Failed to update inventory item");
+  return res.json();
+}
+
+export async function recordStockLevel(data: {
+  item: string;
+  quantity: number;
+  unit?: string;
+  reorder_point?: number;
+  supplier?: string;
+  force_auto_call?: boolean;
+}) {
+  const res = await fetch(`${API_BASE_URL}/api/inventory/record`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to record stock level");
+  return res.json();
+}
+
+export async function recordStockBatch(items: Array<{
+  item: string;
+  quantity: number;
+  unit?: string;
+  reorder_point?: number;
+  supplier?: string;
+  force_auto_call?: boolean;
+}>) {
+  const res = await fetch(`${API_BASE_URL}/api/inventory/record-batch`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items })
+  });
+  if (!res.ok) throw new Error("Failed to record stock batch");
+  return res.json();
+}
+
+export async function getLowStockStatus() {
+  const res = await fetch(`${API_BASE_URL}/api/inventory/low-stock-status`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch low stock status");
+  return res.json();
+}
+
+export async function configureAutoReorder(data: {
+  item: string;
+  reorder_point: number;
+  supplier: string;
+}) {
+  const res = await fetch(`${API_BASE_URL}/api/inventory/auto-reorder/configure`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to configure auto-reorder rule");
+  return res.json();
+}
+
+export async function scanAndReorderAll(force: boolean = false) {
+  const res = await fetch(`${API_BASE_URL}/api/inventory/scan-and-reorder?force=${force}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
+  if (!res.ok) throw new Error("Failed to scan and trigger reorders");
+  return res.json();
+}
+
+export async function triggerItemCall(itemId: number, force: boolean = true) {
+  const res = await fetch(`${API_BASE_URL}/api/inventory/trigger-item-call/${itemId}?force=${force}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
+  if (!res.ok) throw new Error("Failed to trigger voice call for item");
   return res.json();
 }
 
@@ -282,3 +354,47 @@ export async function predictMaintenanceRisk(data: {
   if (!res.ok) throw new Error("Failed to predict maintenance risk");
   return res.json();
 }
+
+export interface CleaningSlotPayload {
+  slot_id: number;
+  slot_time: string;
+  slot_label: string;
+  image_url?: string;
+  cleaner_present: boolean;
+  cleaner_name?: string;
+  confidence_score?: number;
+  detected_features?: string[];
+  notes?: string;
+}
+
+export async function inspectCleaningShift(data: {
+  room_number: string;
+  hostel_name?: string;
+  floor?: string;
+  inspection_date?: string;
+  manager_name?: string;
+  manager_phone?: string;
+  slots: CleaningSlotPayload[];
+  auto_call_if_missing?: boolean;
+  agent_id_override?: string;
+}) {
+  const res = await fetch(`${API_BASE_URL}/api/maintenance/inspect-cleaning-shift`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to inspect cleaning shift");
+  return res.json();
+}
+
+export async function analyzeCCTVImage(imageData: string) {
+  const res = await fetch(`${API_BASE_URL}/api/maintenance/analyze-cctv-image`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image_data: imageData })
+  });
+  if (!res.ok) throw new Error("Failed to analyze CCTV image");
+  return res.json();
+}
+
+

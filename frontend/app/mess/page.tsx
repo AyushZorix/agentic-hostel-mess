@@ -26,7 +26,20 @@ import {
   PlusCircle,
   Building2,
   UserCheck,
-  History
+  History,
+  Radio,
+  Sliders,
+  Minus,
+  Plus,
+  Send,
+  Bot,
+  Zap,
+  Activity,
+  Cpu,
+  AlertTriangle,
+  Truck,
+  PhoneIncoming,
+  RadioTower
 } from "lucide-react";
 import {
   generatePlan,
@@ -37,7 +50,13 @@ import {
   fetchCallLogs,
   fetchDeliveries,
   intakeDelivery,
-  executeMCPTool
+  executeMCPTool,
+  getPantryInventory,
+  updatePantryItem,
+  recordStockLevel,
+  recordStockBatch,
+  scanAndReorderAll,
+  triggerItemCall
 } from "@/lib/api";
 
 interface MealItem {
@@ -261,6 +280,18 @@ export default function MessPage() {
   const [callStatus, setCallStatus] = useState<"IDLE" | "DIALING" | "CONNECTED" | "COMPLETED">("IDLE");
   const [callResponse, setCallResponse] = useState<any>(null);
 
+  // Live Pantry Stock & Autonomous Low-Stock Calling State
+  const [pantryStock, setPantryStock] = useState<any[]>([]);
+  const [isAutoPilotActive, setIsAutoPilotActive] = useState<boolean>(true);
+  const [stockFilter, setStockFilter] = useState<"all" | "low">("all");
+  const [lastScanTime, setLastScanTime] = useState<string>("Active Just now");
+  const [recordItem, setRecordItem] = useState<string>("Farm Fresh Tomatoes");
+  const [recordQty, setRecordQty] = useState<string>("8.0");
+  const [recordThreshold, setRecordThreshold] = useState<string>("15.0");
+  const [recordSupplier, setRecordSupplier] = useState<string>("FreshVeg Wholesale Logistics");
+  const [autoCallAlert, setAutoCallAlert] = useState<any | null>(null);
+  const [isScanningStock, setIsScanningStock] = useState<boolean>(false);
+
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
@@ -271,8 +302,17 @@ export default function MessPage() {
       const vList = await fetchVendors();
       if (vList && vList.length > 0) {
         setVendors(vList);
-        setSelectedVendor(vList[0]);
-        setTargetPhone(vList[0].phone);
+        // Pre-select vendor "mallik" if present in DB
+        const mallikVendor = vList.find((v: any) => v.name.toLowerCase().includes("mallik"));
+        if (mallikVendor) {
+          setSelectedVendor(mallikVendor);
+          setTargetPhone(mallikVendor.phone);
+          setRecordSupplier(mallikVendor.name);
+        } else {
+          setSelectedVendor(vList[0]);
+          setTargetPhone(vList[0].phone);
+          setRecordSupplier(vList[0].name);
+        }
       }
       const logs = await fetchCallLogs();
       if (logs) setCallLogs(logs);
@@ -281,9 +321,147 @@ export default function MessPage() {
     }
   };
 
+  const loadPantryStock = async () => {
+    try {
+      const data = await getPantryInventory();
+      if (data && data.length > 0) {
+        setPantryStock(data);
+        if (!recordItem || !data.some((d: any) => d.item === recordItem)) {
+          setRecordItem(data[0].item);
+          setRecordQty(String(data[0].quantity));
+          setRecordThreshold(String(data[0].reorder_point || 15));
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to load pantry stock:", e);
+    }
+  };
+
   useEffect(() => {
     loadVendorsAndLogs();
+    loadPantryStock();
   }, []);
+
+  // Periodic Autonomous Stock Scan Loop: Runs automatically without user input
+  useEffect(() => {
+    if (!isAutoPilotActive) return;
+    const interval = setInterval(() => {
+      handleScanAndReorderStock(false, true);
+    }, 25000);
+    return () => clearInterval(interval);
+  }, [isAutoPilotActive]);
+
+  const handleQuickStockAdjust = async (item: string, delta: number) => {
+    try {
+      const res = await updatePantryItem(item, delta, true);
+      await loadPantryStock();
+      await loadVendorsAndLogs();
+      if (res.is_low_stock && res.auto_call && res.auto_call.auto_call_triggered) {
+        setAutoCallAlert(res.auto_call);
+        triggerToast(`🚨 Stock Deficit! Agent auto-placed ElevenLabs voice call to vendor ${res.auto_call.vendor_name} (${res.auto_call.vendor_phone || '+918431362088'})`);
+      } else if (res.is_low_stock) {
+        triggerToast(`⚠️ Stock for ${item} is LOW (${res.new_quantity} ${res.unit})`);
+      } else {
+        triggerToast(`Stock updated: ${item} (${res.new_quantity} ${res.unit})`);
+      }
+    } catch (e) {
+      console.warn("Failed to adjust stock:", e);
+    }
+  };
+
+  const handleStockQtyChange = (itemId: number, newQtyStr: string) => {
+    const val = parseFloat(newQtyStr) || 0;
+    setPantryStock(prev => prev.map(item => item.id === itemId ? { ...item, quantity: val, is_low_stock: val <= item.reorder_point } : item));
+  };
+
+  const handleSaveDailyStocks = async () => {
+    setIsScanningStock(true);
+    try {
+      triggerToast("🤖 Agent analyzing updated daily stock counts for vendor mallik...");
+      
+      const itemsToUpdate = pantryStock.map(i => ({
+        item: i.item,
+        quantity: Number(i.quantity),
+        reorder_point: Number(i.reorder_point),
+        supplier: "mallik",
+        force_auto_call: true
+      }));
+
+      const res = await recordStockBatch(itemsToUpdate);
+      await loadPantryStock();
+      await loadVendorsAndLogs();
+      setLastScanTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+
+      // Find if any low stock triggered an automated call
+      const triggeredCalls = res.records?.filter((r: any) => r.auto_call && r.auto_call.auto_call_triggered).map((r: any) => r.auto_call) || [];
+
+      if (triggeredCalls.length > 0) {
+        setAutoCallAlert(triggeredCalls[0]);
+        triggerToast(`🚨 Low stock detected! Outbound ElevenLabs call automatically placed to vendor mallik (+918431362088)!`);
+      } else {
+        setAutoCallAlert(null);
+        triggerToast(`✅ Daily stocks saved! All stock levels are sufficient. No call needed.`);
+      }
+    } catch (err: any) {
+      triggerToast(`Error saving stocks: ${err.message}`);
+    } finally {
+      setIsScanningStock(false);
+    }
+  };
+
+  const handleRecordStockSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!recordItem || recordQty === "") return;
+    setIsScanningStock(true);
+    try {
+      const targetVendorName = recordSupplier || "mallik";
+      triggerToast(`🤖 Agent analyzing ${recordItem}: ${recordQty} on-hand vs ${recordThreshold} threshold...`);
+      
+      const res = await recordStockLevel({
+        item: recordItem,
+        quantity: parseFloat(recordQty),
+        reorder_point: recordThreshold ? parseFloat(recordThreshold) : undefined,
+        supplier: targetVendorName,
+        force_auto_call: true
+      });
+      await loadPantryStock();
+      await loadVendorsAndLogs();
+      
+      if (res.is_low_stock && res.auto_call && res.auto_call.auto_call_triggered) {
+        setAutoCallAlert(res.auto_call);
+        triggerToast(`🚨 Low Stock Detected! Outbound ElevenLabs call automatically placed to vendor ${res.auto_call.vendor_name} (${res.auto_call.vendor_phone || '+918431362088'})!`);
+      } else if (res.is_low_stock) {
+        triggerToast(`⚠️ Stock recorded: ${recordItem} is LOW (${res.quantity} ${res.unit}) - Reorder required`);
+      } else {
+        triggerToast(`✅ Stock Analysis: ${recordItem} is healthy at ${res.quantity} ${res.unit} (Above ${res.reorder_point} threshold). No call needed.`);
+      }
+    } catch (err: any) {
+      triggerToast(`Error recording stock: ${err.message}`);
+    } finally {
+      setIsScanningStock(false);
+    }
+  };
+
+  const handleScanAndReorderStock = async (force: boolean = false, isBackground: boolean = false) => {
+    setIsScanningStock(true);
+    try {
+      const res = await scanAndReorderAll(force);
+      await loadPantryStock();
+      await loadVendorsAndLogs();
+      setLastScanTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      
+      if (res.calls_triggered_count > 0) {
+        setAutoCallAlert(res.calls[0]);
+        triggerToast(`⚡ Autonomous Stock Scan: Auto vendor call placed to mallik (+918431362088)!`);
+      } else if (!isBackground) {
+        triggerToast(`✅ Stock Analysis Complete: All ${res.scanned_items_count} items analyzed. Inventory is healthy.`);
+      }
+    } catch (err: any) {
+      if (!isBackground) triggerToast(`Stock analysis error: ${err.message}`);
+    } finally {
+      setIsScanningStock(false);
+    }
+  };
 
   const handleSelectVendor = (v: Vendor) => {
     setSelectedVendor(v);
@@ -424,6 +602,14 @@ export default function MessPage() {
 
           <div className="flex flex-wrap items-center gap-3">
             <button
+              onClick={() => handleScanAndReorderStock(true, false)}
+              disabled={isScanningStock}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-4 py-2.5 text-xs sm:text-sm font-extrabold text-zinc-950 shadow-lg shadow-emerald-500/25 hover:from-emerald-300 hover:to-teal-300 transition transform active:scale-95 disabled:opacity-50"
+            >
+              <Zap className={`h-4 w-4 fill-zinc-950 ${isScanningStock ? "animate-spin" : "animate-bounce"}`} />
+              <span>{isScanningStock ? "Analyzing & Calling..." : "⚡ Auto-Analyze Stocks & Call"}</span>
+            </button>
+            <button
               onClick={() => setIsAddVendorOpen(true)}
               className="flex items-center gap-1.5 rounded-xl border border-zinc-700 bg-zinc-900 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-zinc-200 hover:bg-zinc-800 transition"
             >
@@ -432,10 +618,10 @@ export default function MessPage() {
             </button>
             <button
               onClick={() => setIsCallModalOpen(true)}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2.5 text-xs sm:text-sm font-bold text-zinc-950 shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-400 transition transform active:scale-95"
+              className="flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-emerald-300 hover:bg-emerald-500/20 transition"
             >
-              <PhoneCall className="h-4 w-4" />
-              <span>Call Vendor (ElevenLabs AI)</span>
+              <PhoneCall className="h-4 w-4 text-emerald-400" />
+              <span>Manual Call Modal</span>
             </button>
           </div>
         </div>
@@ -520,13 +706,182 @@ export default function MessPage() {
           </div>
         </section>
 
+        {/* SECTION: MESS MANAGER DAILY STOCK ENTRY & AUTOMATIC CALLING */}
+        <section className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 space-y-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800 pb-4">
+            <div>
+              <div className="flex items-center gap-2 text-emerald-400">
+                <UtensilsCrossed className="h-4 w-4" />
+                <span className="text-xs font-bold uppercase tracking-wider">Mess Manager Daily Operations</span>
+              </div>
+              <h2 className="text-xl font-bold text-white mt-1">Daily Kitchen Stock Entry</h2>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Enter today&apos;s available stock counts below and click <strong>&quot;Save Daily Stocks &amp; Check Reorder&quot;</strong>. The AI agent will analyze all items. <strong>If any item has low stock, the agent will automatically call vendor mallik (+918431362088)</strong> to order restock. If stock is adequate, no call is made.
+              </p>
+            </div>
+
+            {/* Quick Simulation Presets */}
+            <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+              <span className="text-[11px] text-zinc-400 font-medium">Test Presets:</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setPantryStock(prev => prev.map(i => {
+                    if (i.item.toLowerCase().includes("milk")) return { ...i, quantity: 8.0, is_low_stock: true };
+                    return i;
+                  }));
+                  triggerToast("Set Milk to 8L (Low Stock threshold 25L)");
+                }}
+                className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs text-zinc-200"
+              >
+                🥛 Set Milk to 8L (Low)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPantryStock(prev => prev.map(i => {
+                    if (i.item.toLowerCase().includes("tomato")) return { ...i, quantity: 5.0, is_low_stock: true };
+                    return i;
+                  }));
+                  triggerToast("Set Tomatoes to 5kg (Low Stock threshold 30kg)");
+                }}
+                className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs text-zinc-200"
+              >
+                🍅 Set Tomatoes to 5kg (Low)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPantryStock(prev => prev.map(i => ({ ...i, quantity: i.reorder_point + 20, is_low_stock: false })));
+                  triggerToast("Reset all stocks to adequate levels (> threshold)");
+                }}
+                className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs text-zinc-200"
+              >
+                ✅ Set All Adequate
+              </button>
+            </div>
+          </div>
+
+          {/* ACTIVE CALL NOTIFICATION BANNER (Shows automatically when low stock call is triggered) */}
+          {autoCallAlert && (
+            <div className="rounded-xl border border-emerald-500/60 bg-emerald-950/40 p-4 space-y-2 animate-in fade-in shadow-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
+                  <div className="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></div>
+                  <span>⚡ Voice Call Automatically Placed to Vendor mallik</span>
+                </div>
+                <button onClick={() => setAutoCallAlert(null)} className="text-zinc-400 hover:text-white text-xs">✕ Dismiss</button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-zinc-950/80 rounded-lg p-3 border border-zinc-800 text-xs">
+                <div>
+                  <span className="text-zinc-400 block text-[11px]">Vendor Called:</span>
+                  <p className="font-bold text-white">{autoCallAlert.vendor_name || "mallik"} ({autoCallAlert.vendor_phone || "+918431362088"})</p>
+                </div>
+                <div>
+                  <span className="text-zinc-400 block text-[11px]">Purchase Order:</span>
+                  <p className="font-bold text-emerald-300 font-mono">{autoCallAlert.po_number}</p>
+                  <p className="text-[11px] text-zinc-400">{autoCallAlert.reorder_quantity ? `${autoCallAlert.reorder_quantity} ${autoCallAlert.unit || 'kg'}` : autoCallAlert.items_summary} · ₹{Number(autoCallAlert.total_amount_inr || 0).toLocaleString()}</p>
+                </div>
+                <div className="flex items-center">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                    <CheckCircle2 className="h-4 w-4" /> ElevenLabs Call Dispatched
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Simple, Clean Stock Entry Table */}
+          <div className="overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-950">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-zinc-900/90 text-zinc-400 font-semibold border-b border-zinc-800">
+                <tr>
+                  <th className="p-3.5">Ingredient / Pantry Item</th>
+                  <th className="p-3.5">Current Stock On-Hand</th>
+                  <th className="p-3.5">Reorder Threshold</th>
+                  <th className="p-3.5">Stock Status</th>
+                  <th className="p-3.5">Assigned Vendor</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800/60">
+                {pantryStock.map((item) => {
+                  const isLow = Number(item.quantity) <= Number(item.reorder_point);
+                  return (
+                    <tr key={item.id} className={isLow ? "bg-amber-500/5" : "hover:bg-zinc-900/40"}>
+                      <td className="p-3.5 font-medium text-white">
+                        <div>{item.item}</div>
+                        <div className="text-[10px] text-zinc-500">{item.category}</div>
+                      </td>
+                      <td className="p-3.5">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            step="any"
+                            value={item.quantity}
+                            onChange={(e) => handleStockQtyChange(item.id, e.target.value)}
+                            className={`w-24 rounded-lg px-2.5 py-1.5 font-mono text-xs border focus:outline-none transition ${
+                              isLow
+                                ? "bg-amber-950/40 border-amber-500/50 text-amber-300 font-bold"
+                                : "bg-zinc-900 border-zinc-700 text-white focus:border-emerald-400"
+                            }`}
+                          />
+                          <span className="text-zinc-400 font-mono text-[11px]">{item.unit}</span>
+                        </div>
+                      </td>
+                      <td className="p-3.5 text-zinc-400 font-mono">
+                        {item.reorder_point} {item.unit}
+                      </td>
+                      <td className="p-3.5">
+                        {isLow ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">
+                            🚨 Low Stock (Will Auto-Call)
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                            ✅ Adequate Stock
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3.5 text-zinc-400 font-mono text-[11px]">
+                        mallik (+918431362088)
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Bottom Save Action */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+            <p className="text-xs text-zinc-400">
+              {pantryStock.filter(i => Number(i.quantity) <= Number(i.reorder_point)).length > 0 ? (
+                <span className="text-amber-400 font-semibold">
+                  ⚠️ {pantryStock.filter(i => Number(i.quantity) <= Number(i.reorder_point)).length} item(s) currently low. Saving will automatically dispatch a voice call to vendor mallik (+918431362088).
+                </span>
+              ) : (
+                <span>✅ All stocks are above threshold. Saving will not trigger any vendor calls.</span>
+              )}
+            </p>
+
+            <button
+              onClick={handleSaveDailyStocks}
+              disabled={isScanningStock}
+              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-400 px-6 py-2.5 text-xs sm:text-sm font-bold text-zinc-950 shadow-lg shadow-emerald-500/20 hover:bg-emerald-300 transition disabled:opacity-50 active:scale-95"
+            >
+              <RefreshCw className={`h-4 w-4 ${isScanningStock ? "animate-spin" : ""}`} />
+              <span>{isScanningStock ? "Saving & Analyzing Stocks..." : "Save Daily Stocks & Check Reorder"}</span>
+            </button>
+          </div>
+        </section>
+
         {/* SECTION 1: Menu Generation Agent Controls */}
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-emerald-400" />
-                <h2 className="text-lg font-bold text-white">1. AI Menu Generator Agent</h2>
+                <h2 className="text-lg font-bold text-white">AI Weekly Menu & Meal Plan Generator</h2>
               </div>
               <p className="text-xs text-zinc-400">
                 Swarm coordinates nutrition, budget constraint, and inventory shelf-life to generate meal plans.
@@ -653,121 +1008,19 @@ export default function MessPage() {
           </div>
         </section>
 
-        {/* SECTION 2: Budget Breakdown & Cost Analysis */}
-        <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Coins className="h-4 w-4 text-emerald-400" />
-              <h2 className="text-lg font-bold text-white">2. Weekly Budget & Financial Optimizations</h2>
-            </div>
-            <span className="text-xs font-mono font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full">
-              Budget: ₹1,50,000 / week
-            </span>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-xl bg-zinc-900/80 border border-zinc-800 p-4 space-y-2 text-xs">
-              <p className="font-semibold uppercase text-zinc-400">Meal Category Allocations</p>
-              <div className="space-y-1.5">
-                <div className="flex justify-between"><span>Breakfast</span><span className="font-bold text-white">₹31,350 (22%)</span></div>
-                <div className="flex justify-between"><span>Lunch</span><span className="font-bold text-white">₹54,150 (38%)</span></div>
-                <div className="flex justify-between"><span>Snacks</span><span className="font-bold text-white">₹17,100 (12%)</span></div>
-                <div className="flex justify-between"><span>Dinner</span><span className="font-bold text-white">₹39,900 (28%)</span></div>
-              </div>
-            </div>
 
-            <div className="rounded-xl bg-zinc-900/80 border border-zinc-800 p-4 space-y-2 text-xs">
-              <p className="font-semibold uppercase text-zinc-400">Key Spend Categories</p>
-              <div className="space-y-1.5">
-                <div className="flex justify-between"><span>Fresh Milk (280 L)</span><span className="font-bold text-white">₹14,560</span></div>
-                <div className="flex justify-between"><span>Basmati Rice (350 kg)</span><span className="font-bold text-white">₹18,200</span></div>
-                <div className="flex justify-between"><span>Fresh Paneer & Dairy</span><span className="font-bold text-white">₹28,800</span></div>
-                <div className="flex justify-between"><span>Vegetables & Pulses</span><span className="font-bold text-white">₹42,150</span></div>
-              </div>
-            </div>
-
-            <div className="rounded-xl bg-emerald-500/5 border border-emerald-500/30 p-4 space-y-2 text-xs flex flex-col justify-between">
-              <div>
-                <p className="font-semibold uppercase text-emerald-400">Optimization Result</p>
-                <p className="text-xl font-bold text-white mt-1">₹7,500 Buffer Preserved</p>
-                <p className="text-zinc-400 mt-1">FIFO inventory rotation avoided ₹4,200 spoilage.</p>
-              </div>
-              <span className="text-emerald-300 font-semibold">100% Nutritional & Caloric Target Met</span>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 3: Live Vendor Call Panel & Database History */}
-        <section className="rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/5 via-zinc-900 to-zinc-900 p-6 space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-2 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
-                <Volume2 className="h-4 w-4" />
-                <span>3. Live Vendor Calling & Order Confirmation</span>
-              </div>
-              <h3 className="text-xl font-bold text-white mt-1">Execute Real-Time Voice Calls to Suppliers</h3>
-              <p className="text-xs text-zinc-400">
-                Powered by ElevenLabs Conversational Voice Agent + Twilio. Connected directly to your PostgreSQL database.
-              </p>
-            </div>
-
-            <button
-              onClick={() => setIsCallModalOpen(true)}
-              className="flex items-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-zinc-950 shadow-lg shadow-emerald-500/20 hover:bg-emerald-300 transition shrink-0"
-            >
-              <PhoneCall className="h-4 w-4" />
-              <span>Launch Live Call</span>
-            </button>
-          </div>
-
-          {/* Vendors Database List */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-300">Registered Hostel Vendors in Database:</span>
-              <button
-                onClick={() => setIsAddVendorOpen(true)}
-                className="text-xs text-emerald-400 hover:underline flex items-center gap-1"
-              >
-                <PlusCircle className="h-3.5 w-3.5" /> Add Vendor
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {vendors.map((v) => (
-                <div
-                  key={v.id}
-                  onClick={() => handleSelectVendor(v)}
-                  className={`p-3.5 rounded-xl border cursor-pointer transition ${
-                    selectedVendor.id === v.id
-                      ? "border-emerald-500 bg-emerald-500/10"
-                      : "border-zinc-800 bg-zinc-950/60 hover:border-zinc-700"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-white">{v.name}</span>
-                    {selectedVendor.id === v.id && (
-                      <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30">Selected</span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-zinc-400 mt-1 font-mono">{v.phone}</p>
-                  <p className="text-[10px] text-zinc-500">{v.category} · {v.contact_person}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 4: Live Confirmed Deliveries & Pantry Stock Intake Gate */}
+        {/* Automated Orders and Call Outcomes */}
         <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
                 <Building2 className="h-4 w-4" />
-                <span>4. Voice Call Outcomes & Live Kitchen Stock Inflow</span>
+                <span>Voice Call Orders & Stock Restock Gate</span>
               </div>
-              <h2 className="text-lg font-bold text-white mt-1">Confirmed Vendor Orders & Restock Gate</h2>
+              <h2 className="text-lg font-bold text-white mt-1">Automated Orders & Intake Gate</h2>
               <p className="text-xs text-zinc-400">
-                Where call data goes: Confirmed vendor arrival schedules and agreed quantities can be directly ingested into live PostgreSQL pantry inventory.
+                Orders dispatched automatically to vendor mallik (+918431362088) when stock is low. Confirmed deliveries can be restocked into PostgreSQL inventory below.
               </p>
             </div>
 
@@ -783,7 +1036,7 @@ export default function MessPage() {
           <div className="space-y-3">
             {callLogs.length === 0 ? (
               <div className="rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-6 text-center text-xs text-zinc-500">
-                No vendor voice calls placed yet. Click &quot;Launch Live Call&quot; above to place your first AI order call!
+                No vendor voice calls placed yet. When daily stock is saved with low inventory, calls to vendor mallik (+918431362088) will automatically log here!
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -871,7 +1124,7 @@ export default function MessPage() {
             <div>
               <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
                 <History className="h-4 w-4" />
-                <span>5. Model Context Protocol (MCP) Live Tools</span>
+                <span>Model Context Protocol (MCP) Live Tools</span>
               </div>
               <h2 className="text-lg font-bold text-white mt-1">Autonomous Agent Tool Execution</h2>
               <p className="text-xs text-zinc-400">

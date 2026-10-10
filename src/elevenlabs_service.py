@@ -36,6 +36,13 @@ def _get_api_key(override: Optional[str] = None) -> str:
 def _get_agent_id(override: Optional[str] = None) -> str:
     return (override or os.getenv("ELEVENLABS_AGENT_ID", "agent_4801m27t9mqjf9tb4tache0cwqt6")).strip()
 
+def _get_maintenance_agent_id(override: Optional[str] = None) -> str:
+    agent = (override or os.getenv("ELEVENLABS_MAINTENANCE_AGENT_ID", "")).strip()
+    if not agent or agent == "agent_maintenance_placeholder":
+        # Fall back to general agent ID if dedicated maintenance agent isn't set yet
+        agent = _get_agent_id()
+    return agent
+
 def _get_phone_number_id(override: Optional[str] = None) -> str:
     return (override or os.getenv("ELEVENLABS_PHONE_NUMBER_ID", os.getenv("ELEVENLABS_BLOOD_PHONE_NUMBER_ID", "phnum_9601m27vaw83ecqrfj4y1mb6qzmc"))).strip()
 
@@ -255,3 +262,174 @@ def process_vendor_call_webhook(payload: Dict[str, Any]) -> Dict[str, Any]:
         },
         "processed_at": datetime.utcnow().isoformat()
     }
+
+
+async def initiate_maintenance_manager_call(
+    manager_phone: Optional[str] = None,
+    manager_name: str = "Arjun",
+    hostel_name: str = "Aryabhatta Hostel",
+    floor: str = "2nd Floor - East Wing Corridor",
+    time_captured: str = "03:00 PM",
+    corridor_image: Optional[str] = None,
+    room_or_area: str = "Block A - Room 204",
+    issue_type: str = "Cleaner Not Visible / Cleaning Shift Missed",
+    time_slots_missing: Optional[List[str]] = None,
+    all_slots_data: Optional[List[Dict[str, Any]]] = None,
+    agent_id_override: Optional[str] = None,
+    phone_number_id_override: Optional[str] = None,
+    api_key_override: Optional[str] = None,
+    extra_details: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Triggers an outbound phone call via ElevenLabs Conversational Voice Agent
+    to Facility Manager Arjun when a cleaner/washer is not detected in the CCTV corridor images.
+    Sends complete data for all 4 fixed-time CCTV images so the agent can answer
+    questions about ANY time slot (08:00 AM, 11:30 AM, 03:00 PM, 06:30 PM).
+    """
+    api_key = _get_api_key(api_key_override)
+    agent_id = _get_maintenance_agent_id(agent_id_override)
+    phone_number_id = _get_phone_number_id(phone_number_id_override)
+
+    target_phone = manager_phone or os.getenv("MAINTENANCE_MANAGER_PHONE", "+918431362088")
+    normalized_phone = _normalize_phone(target_phone)
+    missing_str = ", ".join(time_slots_missing) if time_slots_missing else time_captured
+
+    img_val = str(corridor_image or "CCTV_CORRIDOR_CAM_204_0300PM.jpg")
+    if len(img_val) > 250 and img_val.startswith("data:"):
+        # Truncate raw base64 for cleaner agent payload
+        img_val = f"CCTV_CAPTURE_{time_captured.replace(' ', '_')}_{floor.replace(' ', '_')}.jpg"
+
+    # Build detailed slot-by-slot summaries for all images
+    slot_variables: Dict[str, Any] = {}
+    summary_lines = []
+    
+    if all_slots_data:
+        for idx, s in enumerate(all_slots_data, 1):
+            slot_t = s.get("slot_time", f"Slot {idx}")
+            slot_lbl = s.get("slot_label", "")
+            is_present = s.get("cleaner_present", False)
+            staff_name = s.get("cleaner_name") or ("Washer/Cleaner" if is_present else "None")
+            status_text = "CLEANER_PRESENT" if is_present else "CLEANER_ABSENT"
+            confidence = s.get("confidence_score", 0.95)
+            features = ", ".join(s.get("detected_features", []))
+            notes = s.get("notes", "")
+            
+            # Generic slot_1, slot_2, slot_3, slot_4 variables
+            slot_variables[f"slot_{idx}_time"] = slot_t
+            slot_variables[f"slot_{idx}_label"] = slot_lbl
+            slot_variables[f"slot_{idx}_status"] = status_text
+            slot_variables[f"slot_{idx}_cleaner_present"] = str(is_present)
+            slot_variables[f"slot_{idx}_staff"] = staff_name
+            slot_variables[f"slot_{idx}_features"] = features
+            slot_variables[f"slot_{idx}_details"] = f"{slot_t} - {slot_lbl}: {'Cleaner PRESENT' if is_present else 'Cleaner ABSENT'} (Detected: {features})"
+
+            # Explicit time-keyed variables so the agent can look up by time directly
+            time_key = slot_t.lower().replace(":", "").replace(" ", "_") # e.g. "0800_am", "1130_am"
+            slot_variables[f"time_{time_key}_status"] = status_text
+            slot_variables[f"time_{time_key}_summary"] = f"{'Present' if is_present else 'ABSENT'} - {features}"
+
+            symbol = "✅ Present" if is_present else "🚨 ABSENT"
+            summary_lines.append(f"[{slot_t} {slot_lbl}]: {symbol} ({staff_name} - {features})")
+
+    slots_summary_text = " | ".join(summary_lines) if summary_lines else f"Missed: {missing_str}"
+    full_breakdown_text = "; ".join(summary_lines) if summary_lines else missing_str
+
+    dynamic_variables = {
+        # Core 4 variables requested
+        "hostel_name": hostel_name or "Aryabhatta Hostel",
+        "floor": floor or "2nd Floor - East Wing Corridor",
+        "time": time_captured or "03:00 PM",
+        "corridor_image": img_val,
+        # Full multi-slot context so agent knows what happened at ALL times of the day
+        "all_slots_summary": slots_summary_text,
+        "all_slots_breakdown": full_breakdown_text,
+        "missed_time_slots": missing_str,
+        "manager_name": manager_name or os.getenv("MAINTENANCE_MANAGER_NAME", "Arjun"),
+        "room_number": room_or_area,
+        "incident_type": issue_type,
+        "urgency": "HIGH",
+        "details": extra_details or (
+            f"CCTV camera inspection for {hostel_name} on {floor}. "
+            f"Alert at {time_captured}: No cleaner visible. "
+            f"Full day CCTV inspection record: {full_breakdown_text}."
+        ),
+        "safeguard_instructions": (
+            f"You are calling Facility Manager {manager_name} regarding {hostel_name}, {floor}. "
+            f"Primary Alert: At {time_captured}, CCTV showed cleaner was absent. "
+            f"If Manager {manager_name} asks about any other time slot during the day, provide the exact status from the CCTV log: {full_breakdown_text}."
+        ),
+        **slot_variables
+    }
+
+    if not api_key:
+        logger.warning("[11L-Maint] No ELEVENLABS_API_KEY set. Simulating maintenance call to Arjun.")
+        simulated_call_sid = f"CA_MAINT_SIM_{int(datetime.utcnow().timestamp())}"
+        simulated_convo_id = f"conv_maint_{int(datetime.utcnow().timestamp())}"
+
+        return {
+            "mode": "SIMULATION",
+            "success": True,
+            "conversation_id": simulated_convo_id,
+            "call_sid": simulated_call_sid,
+            "to_number": normalized_phone,
+            "manager_name": manager_name,
+            "room_or_area": room_or_area,
+            "dynamic_variables": dynamic_variables,
+            "script_preview": (
+                f"Hello {manager_name}, this is HostelOps Facility AI calling with an urgent housekeeping alert. "
+                f"For {room_or_area}, daily camera inspection detected that no cleaner was visible during: {missing_str}. "
+                f"The room has not been marked cleaned. Please dispatch a replacement cleaner immediately."
+            ),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+    payload = {
+        "agent_id": agent_id,
+        "agent_phone_number_id": phone_number_id,
+        "to_number": normalized_phone,
+        "conversation_initiation_client_data": {
+            "dynamic_variables": dynamic_variables,
+        },
+    }
+
+    url = f"{ELEVENLABS_BASE}/convai/twilio/outbound-call"
+    headers = {
+        "xi-api-key": api_key,
+        "Content-Type": "application/json",
+    }
+
+    logger.info(
+        "[11L-Maint][outbound_call] to=%s manager=%s room=%s agent_id=%s phone_id=%s",
+        _mask_phone(normalized_phone),
+        manager_name,
+        room_or_area,
+        agent_id,
+        phone_number_id
+    )
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(url, json=_json_safe(payload), headers=headers)
+
+    logger.info("[11L-Maint][response] status=%s body=%s", resp.status_code, resp.text)
+
+    if resp.status_code >= 400:
+        logger.error("ElevenLabs Maintenance API error %s: %s", resp.status_code, resp.text)
+        raise RuntimeError(f"ElevenLabs API error {resp.status_code}: {resp.text}")
+
+    data = resp.json()
+    if data.get("success") is False:
+        msg = data.get("message", "Unknown ElevenLabs / Twilio error")
+        raise RuntimeError(f"ElevenLabs dispatch error: {msg}")
+
+    return {
+        "mode": "LIVE",
+        "success": True,
+        "conversation_id": data.get("conversation_id"),
+        "call_sid": data.get("callSid") or data.get("call_sid"),
+        "to_number": normalized_phone,
+        "manager_name": manager_name,
+        "room_or_area": room_or_area,
+        "dynamic_variables": dynamic_variables,
+        "timestamp": datetime.utcnow().isoformat()
+    }
+

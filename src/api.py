@@ -11,7 +11,7 @@ import os
 import json
 import asyncio
 from typing import Dict, Any, List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,9 +30,12 @@ from src.llm_swarm import LLMMenuCoordinator
 from mcp.server import MessMCPServer
 from src.elevenlabs_service import (
     initiate_vendor_outbound_call,
+    initiate_maintenance_manager_call,
     get_conversation,
     process_vendor_call_webhook
 )
+from src.vision_detector import analyze_cctv_frame
+
 
 # Initialize Database & seed if empty
 seed_db_if_empty(reset=False)
@@ -74,10 +77,175 @@ class SignApprovalRequest(BaseModel):
 class UpdateInventoryRequest(BaseModel):
     item: str
     quantity_delta: float # Negative to consume, positive to restock
+    force_auto_call: bool = False
+
+class RecordStockRequest(BaseModel):
+    item: str
+    quantity: float
+    unit: Optional[str] = None
+    reorder_point: Optional[float] = None
+    supplier: Optional[str] = None
+    force_auto_call: bool = False
+
+class BatchRecordStockRequest(BaseModel):
+    items: List[RecordStockRequest]
+
+class ConfigureAutoReorderRequest(BaseModel):
+    item: str
+    reorder_point: float
+    supplier: str
 
 class MCPExecuteRequest(BaseModel):
     tool_name: str
     arguments: Dict[str, Any] = {}
+
+# ==========================================
+# Autonomous Low-Stock Vendor Calling Engine
+# ==========================================
+
+async def trigger_automated_vendor_call_for_low_stock(
+    inv_item: PantryInventory,
+    db: Session,
+    force: bool = False
+) -> Optional[Dict[str, Any]]:
+    """
+    Autonomous Reorder Engine:
+    When an inventory item's stock drops <= reorder_point:
+      1. Resolves the respected vendor (from HostelVendor / PantryInventory.supplier)
+      2. Calculates reorder quantity and total amount
+      3. Automatically dispatches an ElevenLabs voice call to the vendor
+      4. Saves the log in PostgreSQL and records an entry in the SHA-256 Governance Ledger
+    """
+    if not force and inv_item.quantity > inv_item.reorder_point:
+        return None
+
+    # Check for duplicate recent call within 30 minutes to prevent accidental spam
+    recent_cutoff = datetime.utcnow() - timedelta(minutes=30)
+    recent_call = db.query(VendorCallLog).filter(
+        VendorCallLog.items_summary.ilike(f"%{inv_item.item}%"),
+        VendorCallLog.created_at >= recent_cutoff
+    ).first()
+    
+    if recent_call and not force:
+        return {
+            "auto_call_triggered": False,
+            "status": "COOLDOWN_ACTIVE",
+            "message": f"Active purchase call already dispatched for '{inv_item.item}' within the last 30 minutes.",
+            "po_number": recent_call.po_number,
+            "vendor_name": recent_call.vendor_name,
+            "phone_called": recent_call.phone_called
+        }
+
+    # Find matching vendor
+    all_vendors = db.query(HostelVendor).filter(HostelVendor.is_active == True).all()
+    matched_vendor = None
+
+    # 1. Match by exact or partial supplier name
+    if inv_item.supplier:
+        for v in all_vendors:
+            if (v.name.lower() == inv_item.supplier.lower() or 
+                inv_item.supplier.lower() in v.name.lower() or 
+                v.name.lower() in inv_item.supplier.lower()):
+                matched_vendor = v
+                break
+
+    # 2. Match by item keywords
+    if not matched_vendor:
+        item_lower = inv_item.item.lower()
+        if any(k in item_lower for k in ["milk", "curd", "paneer", "dairy", "butter", "ghee", "cheese"]):
+            matched_vendor = next((v for v in all_vendors if "dairy" in v.name.lower() or "milk" in v.category.lower()), None)
+        elif any(k in item_lower for k in ["tomato", "potato", "onion", "vegetable", "cabbage", "cauliflower", "chilli", "coriander", "ginger", "garlic", "spinach", "bhindi", "capsicum", "peas", "fruit", "carrot", "beans", "gobi", "poriyal"]):
+            matched_vendor = next((v for v in all_vendors if "veg" in v.name.lower() or "vegetable" in v.category.lower()), None)
+        elif any(k in item_lower for k in ["rice", "wheat", "atta", "dal", "pulse", "grain", "moong", "toor", "urad", "chana", "lentil", "flour", "oil", "spice", "semolina", "rava", "sugar", "salt"]):
+            matched_vendor = next((v for v in all_vendors if "grain" in v.name.lower() or "rice" in v.category.lower() or "mandi" in v.name.lower()), None)
+
+    # 3. Match vendor "mallik" if present in database
+    if not matched_vendor:
+        matched_vendor = next((v for v in all_vendors if "mallik" in v.name.lower()), None)
+
+    # 4. Fallback to first vendor
+    if not matched_vendor and all_vendors:
+        matched_vendor = all_vendors[0]
+
+    vendor_name = matched_vendor.name if matched_vendor else (inv_item.supplier or "mallik")
+    vendor_phone = matched_vendor.phone if matched_vendor else "+918431362088"
+    delivery_window = matched_vendor.default_delivery_window if matched_vendor else "Tomorrow 06:30 - 07:00 AM"
+
+    # Calculate deficit & reorder batch size
+    target_stock = max(round(inv_item.reorder_point * 3.5, 1), 40.0)
+    reorder_qty = round(max(target_stock - inv_item.quantity, inv_item.reorder_point * 2), 1)
+    
+    # Calculate price from vendor prices or item unit cost
+    unit_price = inv_item.unit_cost_inr if inv_item.unit_cost_inr > 0 else 45.0
+    vp = db.query(VendorPrice).filter(VendorPrice.item.ilike(f"%{inv_item.item}%")).first()
+    if vp:
+        unit_price = vp.bulk_price_inr if reorder_qty >= vp.bulk_threshold else vp.unit_price_inr
+
+    total_amount = round(reorder_qty * unit_price, 2)
+    po_number = f"PO-AUTO-LOW-{inv_item.id}-{int(datetime.utcnow().timestamp()) % 100000:05d}"
+    items_summary = [f"{reorder_qty} {inv_item.unit} {inv_item.item}"]
+
+    # Trigger outbound call via ElevenLabs
+    call_res = await initiate_vendor_outbound_call(
+        vendor_phone=vendor_phone,
+        vendor_name=vendor_name,
+        po_number=po_number,
+        items_summary=items_summary,
+        total_amount_inr=total_amount,
+        delivery_window=delivery_window,
+        arrival_time="06:45 AM",
+        hostel_name="Aryabhatta & Nilgiri Central Hostel",
+        manager_name="Autonomous Stock Monitor"
+    )
+
+    # Persist call log in PostgreSQL
+    call_log = VendorCallLog(
+        po_number=po_number,
+        vendor_name=vendor_name,
+        phone_called=call_res.get("to_number", vendor_phone),
+        items_summary=", ".join(items_summary),
+        total_amount_inr=total_amount,
+        delivery_window=delivery_window,
+        call_sid=call_res.get("call_sid"),
+        conversation_id=call_res.get("conversation_id"),
+        status="AUTO_TRIGGERED_LOW_STOCK"
+    )
+    db.add(call_log)
+    
+    # Update item urgency
+    inv_item.urgency = "LOW_STOCK_REORDER_TRIGGERED"
+    
+    # Log in SHA-256 Audit Ledger
+    audit_log_instance.log(
+        actor="Autonomous Stock Monitor",
+        action="AUTOMATED_LOW_STOCK_VENDOR_CALL",
+        details={
+            "item": inv_item.item,
+            "on_hand_quantity": inv_item.quantity,
+            "reorder_point": inv_item.reorder_point,
+            "po_number": po_number,
+            "reorder_quantity": reorder_qty,
+            "unit": inv_item.unit,
+            "total_amount_inr": total_amount,
+            "vendor_name": vendor_name,
+            "phone_called": vendor_phone,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    )
+    db.commit()
+
+    return {
+        "auto_call_triggered": True,
+        "status": "DISPATCHED",
+        "po_number": po_number,
+        "vendor_name": vendor_name,
+        "vendor_phone": vendor_phone,
+        "reorder_quantity": reorder_qty,
+        "unit": inv_item.unit,
+        "total_amount_inr": total_amount,
+        "delivery_window": delivery_window,
+        "call_response": call_res
+    }
 
 # Endpoints
 @app.get("/api/health")
@@ -111,24 +279,210 @@ def get_inventory(filter_expiring: bool = False, db: Session = Depends(get_db)):
             "reorder_point": i.reorder_point,
             "urgency": i.urgency,
             "unit_cost_inr": i.unit_cost_inr,
-            "supplier": i.supplier
+            "supplier": i.supplier,
+            "is_low_stock": i.quantity <= i.reorder_point
         }
         for i in items
     ]
 
 @app.post("/api/inventory/update")
-def update_inventory(req: UpdateInventoryRequest, db: Session = Depends(get_db)):
+async def update_inventory(req: UpdateInventoryRequest, db: Session = Depends(get_db)):
     inv_item = db.query(PantryInventory).filter(PantryInventory.item == req.item).first()
     if not inv_item:
         raise HTTPException(status_code=404, detail=f"Pantry item '{req.item}' not found.")
     
     new_qty = max(0.0, inv_item.quantity + req.quantity_delta)
     inv_item.quantity = new_qty
+    
+    # Check low-stock threshold
+    is_low = new_qty <= inv_item.reorder_point
+    auto_call_info = None
+    if is_low:
+        auto_call_info = await trigger_automated_vendor_call_for_low_stock(
+            inv_item=inv_item,
+            db=db,
+            force=req.force_auto_call
+        )
+    else:
+        if inv_item.urgency == "LOW_STOCK_REORDER_TRIGGERED":
+            inv_item.urgency = "NORMAL"
+
     db.commit()
     return {
         "item": inv_item.item,
         "new_quantity": new_qty,
-        "unit": inv_item.unit
+        "unit": inv_item.unit,
+        "reorder_point": inv_item.reorder_point,
+        "is_low_stock": is_low,
+        "supplier": inv_item.supplier,
+        "auto_call": auto_call_info
+    }
+
+@app.post("/api/inventory/record")
+async def record_stock_level(req: RecordStockRequest, db: Session = Depends(get_db)):
+    """
+    User records current stock level for an inventory item.
+    If stock hits <= reorder_point, automatically triggers a call to the respected vendor.
+    """
+    inv_item = db.query(PantryInventory).filter(PantryInventory.item == req.item).first()
+    if not inv_item:
+        # Create new item if not found
+        inv_item = PantryInventory(
+            item=req.item,
+            category="Daily Stock Inflow",
+            quantity=max(0.0, req.quantity),
+            unit=req.unit or "kg",
+            batch_id=f"REC-{int(datetime.utcnow().timestamp()) % 10000}",
+            days_to_expiry=7,
+            reorder_point=req.reorder_point or 15.0,
+            urgency="NORMAL",
+            unit_cost_inr=45.0,
+            supplier=req.supplier or "FreshVeg Wholesale Logistics"
+        )
+        db.add(inv_item)
+    else:
+        inv_item.quantity = max(0.0, req.quantity)
+        if req.reorder_point is not None:
+            inv_item.reorder_point = req.reorder_point
+        if req.supplier:
+            inv_item.supplier = req.supplier
+        if req.unit:
+            inv_item.unit = req.unit
+
+    is_low = inv_item.quantity <= inv_item.reorder_point
+    auto_call_info = None
+    if is_low:
+        auto_call_info = await trigger_automated_vendor_call_for_low_stock(
+            inv_item=inv_item,
+            db=db,
+            force=req.force_auto_call
+        )
+    else:
+        if inv_item.urgency == "LOW_STOCK_REORDER_TRIGGERED":
+            inv_item.urgency = "NORMAL"
+
+    db.commit()
+    db.refresh(inv_item)
+
+    return {
+        "success": True,
+        "item": inv_item.item,
+        "quantity": inv_item.quantity,
+        "unit": inv_item.unit,
+        "reorder_point": inv_item.reorder_point,
+        "supplier": inv_item.supplier,
+        "is_low_stock": is_low,
+        "auto_call": auto_call_info
+    }
+
+@app.post("/api/inventory/record-batch")
+async def record_stock_batch(req: BatchRecordStockRequest, db: Session = Depends(get_db)):
+    results = []
+    for item_req in req.items:
+        res = await record_stock_level(item_req, db)
+        results.append(res)
+    return {"success": True, "updated_count": len(results), "records": results}
+
+@app.get("/api/inventory/low-stock-status")
+def get_low_stock_status(db: Session = Depends(get_db)):
+    """
+    Returns all pantry items currently below or at their reorder point,
+    along with their mapped vendor and recent automated call logs.
+    """
+    all_items = db.query(PantryInventory).all()
+    low_items = [i for i in all_items if i.quantity <= i.reorder_point]
+    vendors = db.query(HostelVendor).filter(HostelVendor.is_active == True).all()
+    vendor_map = {v.name: v for v in vendors}
+    
+    logs = db.query(VendorCallLog).filter(
+        VendorCallLog.status.in_(["AUTO_TRIGGERED_LOW_STOCK", "CONNECTED", "COMPLETED", "INITIATED"])
+    ).order_by(VendorCallLog.created_at.desc()).limit(10).all()
+
+    low_items_data = []
+    for i in low_items:
+        matched_vendor = vendor_map.get(i.supplier)
+        low_items_data.append({
+            "id": i.id,
+            "item": i.item,
+            "category": i.category,
+            "quantity": i.quantity,
+            "unit": i.unit,
+            "reorder_point": i.reorder_point,
+            "deficit": max(0.0, i.reorder_point - i.quantity),
+            "supplier": i.supplier,
+            "vendor_phone": matched_vendor.phone if matched_vendor else "+919876543210",
+            "urgency": i.urgency
+        })
+
+    return {
+        "low_stock_count": len(low_items),
+        "total_items_count": len(all_items),
+        "low_stock_items": low_items_data,
+        "recent_automated_calls": [
+            {
+                "id": log.id,
+                "po_number": log.po_number,
+                "vendor_name": log.vendor_name,
+                "phone_called": log.phone_called,
+                "items_summary": log.items_summary,
+                "total_amount_inr": log.total_amount_inr,
+                "status": log.status,
+                "created_at": log.created_at.isoformat() if log.created_at else None
+            }
+            for log in logs
+        ]
+    }
+
+@app.post("/api/inventory/auto-reorder/configure")
+def configure_auto_reorder(req: ConfigureAutoReorderRequest, db: Session = Depends(get_db)):
+    item = db.query(PantryInventory).filter(PantryInventory.item == req.item).first()
+    if not item:
+        raise HTTPException(status_code=404, detail=f"Pantry item '{req.item}' not found.")
+    
+    item.reorder_point = req.reorder_point
+    item.supplier = req.supplier
+    db.commit()
+    return {
+        "success": True,
+        "item": item.item,
+        "reorder_point": item.reorder_point,
+        "supplier": item.supplier
+    }
+
+@app.post("/api/inventory/scan-and-reorder")
+async def scan_and_reorder_all(force: bool = Query(default=False), db: Session = Depends(get_db)):
+    """
+    Autonomous standing agent scan:
+    Scans entire pantry inventory, analyzes stock levels against thresholds,
+    and automatically triggers ElevenLabs voice calls for low-stock items.
+    """
+    all_items = db.query(PantryInventory).all()
+    triggered = []
+    for item in all_items:
+        if item.quantity <= item.reorder_point or force:
+            call_info = await trigger_automated_vendor_call_for_low_stock(item, db, force=force)
+            if call_info and call_info.get("auto_call_triggered"):
+                triggered.append(call_info)
+    
+    return {
+        "scanned_items_count": len(all_items),
+        "calls_triggered_count": len(triggered),
+        "calls": triggered
+    }
+
+@app.post("/api/inventory/trigger-item-call/{item_id}")
+async def trigger_item_call(item_id: int, force: bool = Query(default=True), db: Session = Depends(get_db)):
+    """
+    Directly trigger an autonomous vendor voice call for a specific pantry item based on stock analysis.
+    """
+    item = db.query(PantryInventory).filter(PantryInventory.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Pantry item not found")
+    call_info = await trigger_automated_vendor_call_for_low_stock(item, db, force=force)
+    return {
+        "success": True,
+        "item": item.item,
+        "call_info": call_info
     }
 
 @app.get("/api/menu/latest")
@@ -745,6 +1099,171 @@ def resolve_maintenance_ticket(ticket_id: str, db: Session = Depends(get_db)):
     t.resident_verified = True
     db.commit()
     return {"message": f"Ticket {ticket_id} resolved and verified"}
+
+
+class CleaningSlotImage(BaseModel):
+    slot_id: int # 1, 2, 3, 4
+    slot_time: str # "08:00 AM", "11:30 AM", "03:00 PM", "06:30 PM"
+    slot_label: str # "Morning Dusting", "Floor Mopping", "Washroom Sanitation", "Evening Trash & Wrap"
+    image_url: Optional[str] = None
+    cleaner_present: bool = True
+    cleaner_name: Optional[str] = "Washer/Cleaner"
+    confidence_score: Optional[float] = 0.95
+    detected_features: Optional[List[str]] = []
+    notes: Optional[str] = ""
+
+class CleaningShiftInspectionRequest(BaseModel):
+    room_number: str = "Block A - Room 204"
+    hostel_name: Optional[str] = "Aryabhatta Hostel"
+    floor: Optional[str] = "2nd Floor - East Wing Corridor"
+    inspection_date: Optional[str] = None
+    manager_name: str = "Arjun"
+    manager_phone: Optional[str] = None
+    slots: List[CleaningSlotImage]
+    auto_call_if_missing: bool = True
+    agent_id_override: Optional[str] = None
+
+@app.post("/api/maintenance/inspect-cleaning-shift")
+async def inspect_cleaning_shift(req: CleaningShiftInspectionRequest, db: Session = Depends(get_db)):
+    """
+    AI Vision-based Daily Room Cleaning Verification Gate:
+    1. Evaluates 4 fixed-time CCTV corridor & room inspection images.
+    2. Identifies cleaner/washer presence via vision detection (uniform, mop, broom, cleaning trolley).
+    3. If cleaner is present across all 4 time slots:
+       - Room is marked 'Room Cleaned This Day'.
+       - No voice call is triggered.
+    4. If cleaner is not visible at ANY time slot:
+       - Generates an alert for the missed shift.
+       - Automatically places an outbound voice call to Facility Manager Arjun using the Maintenance Voice Agent
+         passing: hostel_name, floor, time, corridor_image!
+    """
+    date_str = req.inspection_date or datetime.utcnow().strftime("%Y-%m-%d")
+    missing_slots: List[str] = []
+    inspected_slots_data = []
+
+    for slot in req.slots:
+        # Check if cleaner/washer was present in this time slot
+        if not slot.cleaner_present:
+            missing_slots.append(f"{slot.slot_time} ({slot.slot_label})")
+        
+        inspected_slots_data.append({
+            "slot_id": slot.slot_id,
+            "slot_time": slot.slot_time,
+            "slot_label": slot.slot_label,
+            "image_url": slot.image_url,
+            "cleaner_present": slot.cleaner_present,
+            "cleaner_name": slot.cleaner_name if slot.cleaner_present else None,
+            "confidence_score": slot.confidence_score or 0.95,
+            "detected_features": slot.detected_features or (
+                ["Cleaner in Staff Uniform", "Mop & Bucket Detected", "Corridor Cleaned"]
+                if slot.cleaner_present else ["No Staff Visible", "Untouched Corridor", "Empty Camera View"]
+            ),
+            "notes": slot.notes or (
+                f"Cleaner verified on-duty at {slot.slot_time}."
+                if slot.cleaner_present else f"Cleaner not visible during {slot.slot_time} CCTV inspection window."
+            )
+        })
+
+    all_slots_clean = len(missing_slots) == 0
+    call_dispatch_result = None
+
+    if all_slots_clean:
+        # All 4 time slots verified with cleaner present
+        room_cleaned = True
+        status = "ROOM_CLEANED_TODAY"
+        summary_msg = f"All 4 CCTV fixed-time slots verified for {req.hostel_name} ({req.floor}, {req.room_number}). Cleaner presence confirmed. Room Cleaned This Day!"
+
+        # Create/Record resolved housekeeping audit
+        new_t = MaintenanceTicket(
+            ticket_id=f"TKT-CLN-{int(datetime.utcnow().timestamp()) % 10000}",
+            room_or_area=f"{req.room_number} ({req.floor})",
+            category="Housekeeping",
+            issue=f"Daily 4-Slot CCTV Cleaning Inspection ({date_str})",
+            severity="LOW",
+            assigned_to="Housekeeping Shift Verified",
+            status="RESOLVED",
+            failure_risk="100% On-Time Completion",
+            reported_at="Today",
+            resident_verified=True
+        )
+        db.add(new_t)
+        db.commit()
+
+    else:
+        # At least one slot missed cleaner presence -> Trigger alert & call Arjun
+        room_cleaned = False
+        status = "CLEANER_ABSENT_ALERT"
+        summary_msg = f"ALERT: Cleaner NOT visible in {req.room_number} ({req.floor}) during: {', '.join(missing_slots)}."
+
+        # Find first missing slot for specific agent parameters
+        missing_slot_obj = next((s for s in req.slots if not s.cleaner_present), req.slots[0])
+
+        # Create high priority ticket in PostgreSQL
+        tkt_id = f"TKT-ALERT-{int(datetime.utcnow().timestamp()) % 10000}"
+        new_t = MaintenanceTicket(
+            ticket_id=tkt_id,
+            room_or_area=f"{req.room_number} ({req.floor})",
+            category="Housekeeping",
+            issue=f"Cleaner absent at: {', '.join(missing_slots)} ({date_str})",
+            severity="HIGH",
+            assigned_to=f"Escalated to Manager {req.manager_name}",
+            status="OPEN",
+            failure_risk="Unsanitized corridor risk",
+            reported_at="Just now",
+            resident_verified=False
+        )
+        db.add(new_t)
+        db.commit()
+
+        if req.auto_call_if_missing:
+            # Trigger real-time voice call to Manager Arjun via ElevenLabs with exact variables:
+            # hostel_name, floor, time, corridor_image
+            try:
+                call_dispatch_result = await initiate_maintenance_manager_call(
+                    manager_phone=req.manager_phone,
+                    manager_name=req.manager_name,
+                    hostel_name=req.hostel_name or "Aryabhatta Hostel",
+                    floor=req.floor or "2nd Floor - East Wing Corridor",
+                    time_captured=missing_slot_obj.slot_time,
+                    corridor_image=missing_slot_obj.image_url or f"CCTV_CORRIDOR_{missing_slot_obj.slot_time.replace(' ', '_')}.jpg",
+                    room_or_area=req.room_number,
+                    issue_type="Cleaner Absent / Missed Cleaning Slot",
+                    time_slots_missing=missing_slots,
+                    all_slots_data=inspected_slots_data,
+                    agent_id_override=req.agent_id_override,
+                    extra_details=f"CCTV camera scan on {req.floor} at {missing_slot_obj.slot_time} detected that no cleaner was visible."
+                )
+            except Exception as e:
+                logger.error(f"Failed to place maintenance voice call: {e}")
+                call_dispatch_result = {
+                    "mode": "ERROR",
+                    "success": False,
+                    "error": str(e)
+                }
+
+    return {
+        "room_number": req.room_number,
+        "hostel_name": req.hostel_name,
+        "floor": req.floor,
+        "date": date_str,
+        "room_cleaned_this_day": room_cleaned,
+        "status": status,
+        "summary": summary_msg,
+        "missing_slots": missing_slots,
+        "slots_inspection": inspected_slots_data,
+        "manager_called": req.manager_name if not all_slots_clean and req.auto_call_if_missing else None,
+        "call_result": call_dispatch_result
+    }
+
+
+class AnalyzeCCTVImageRequest(BaseModel):
+    image_data: str
+
+@app.post("/api/maintenance/analyze-cctv-image")
+def analyze_single_cctv_image(req: AnalyzeCCTVImageRequest):
+    """Real-time AI Vision analysis of uploaded CCTV camera frame."""
+    return analyze_cctv_frame(req.image_data)
+
 
 # ==========================================
 # 4. Predictive Intelligence Endpoints
