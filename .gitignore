@@ -23,6 +23,7 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+*.db
 
 # Unrelated previous lab files
 aes_demo.py

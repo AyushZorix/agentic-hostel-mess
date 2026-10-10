@@ -20,7 +20,8 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgrespassword@localhost:5432/hostel_mess")
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+engine = create_engine(DATABASE_URL, pool_pre_ping=True, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -151,6 +152,7 @@ class StudentRoomApplication(Base):
     has_medical_priority = Column(Boolean, default=False)
     preferred_type = Column(String(50), default="Double")
     priority_score = Column(Float, default=0.0)
+    phone = Column(String(50), nullable=True)
     allocated_room = Column(String(50), nullable=True)
     status = Column(String(50), default="PENDING_ALLOCATION") # PENDING_ALLOCATION, ALLOCATED, REJECTED
     special_notes = Column(Text, default="")
@@ -189,6 +191,13 @@ def init_db(reset: bool = False):
     if reset:
         Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
+    try:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE student_room_applications ADD COLUMN IF NOT EXISTS phone VARCHAR(50);"))
+            conn.commit()
+    except Exception:
+        pass
 
 def seed_db_if_empty(reset: bool = False):
     """Seed initial data across Mess, Rooms, and Maintenance into PostgreSQL."""

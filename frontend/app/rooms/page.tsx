@@ -19,9 +19,10 @@ import {
   Filter,
   BrainCircuit,
   TrendingUp,
-  CalendarCheck
+  CalendarCheck,
+  Phone
 } from "lucide-react";
-import { getRoomsStatus, getRoomRequests, createRoomRequest, allocateRooms, predictRoomCohorts } from "@/lib/api";
+import { getRoomsStatus, getRoomRequests, createRoomRequest, allocateRooms, predictRoomCohorts, callStudentForRoomAllotment } from "@/lib/api";
 
 interface Room {
   room_no: string;
@@ -37,6 +38,7 @@ interface RoomApplication {
   id: string;
   student_id: string;
   student_name: string;
+  phone?: string;
   year_of_study: number;
   distance_km: number;
   has_medical_priority: boolean;
@@ -78,10 +80,12 @@ export default function RoomsPage() {
   // New Request Form State
   const [newStudentName, setNewStudentName] = useState("");
   const [newStudentId, setNewStudentId] = useState("");
+  const [newPhone, setNewPhone] = useState("+918431362088");
   const [newYear, setNewYear] = useState<number>(3);
   const [newDistance, setNewDistance] = useState<number>(500);
   const [newMedical, setNewMedical] = useState<boolean>(false);
   const [newPref, setNewPref] = useState<string>("Double");
+  const [callingStudentId, setCallingStudentId] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -105,11 +109,24 @@ export default function RoomsPage() {
     loadData();
   }, []);
 
+  const handleCallStudent = async (app: RoomApplication) => {
+    setCallingStudentId(app.id);
+    try {
+      const targetPhone = app.phone || "+918431362088";
+      await callStudentForRoomAllotment(app.id, targetPhone);
+      showToast(`📞 Voice call placed to ${app.student_name} (${targetPhone})!`);
+    } catch (e: any) {
+      showToast(`Call error: ${e.message || "Failed to place call"}`);
+    } finally {
+      setCallingStudentId(null);
+    }
+  };
+
   const handleRunAllocation = async () => {
     setIsAllocating(true);
     try {
       const res = await allocateRooms();
-      showToast(`Agent allocated ${res.allocations_count || 5} rooms based on priority rank!`);
+      showToast(`Agent allocated ${res.allocations_count || 5} rooms & dispatched voice notification calls!`);
       await loadData();
     } catch (e) {
       // Local fallback simulation
@@ -135,6 +152,7 @@ export default function RoomsPage() {
       const payload = {
         student_id: newStudentId || `STU-${Math.floor(100 + Math.random() * 900)}`,
         student_name: newStudentName || "New Applicant",
+        phone: newPhone || "+918431362088",
         year_of_study: Number(newYear),
         distance_km: Number(newDistance),
         has_medical_priority: newMedical,
@@ -318,7 +336,9 @@ export default function RoomsPage() {
                         </span>
                         <div>
                           <p className="font-semibold text-white">{app.student_name}</p>
-                          <p className="text-[10px] text-zinc-400 font-mono">{app.student_id}</p>
+                          <p className="text-[10px] text-zinc-400 font-mono">
+                            {app.student_id} {app.phone ? `• ${app.phone}` : ""}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -349,10 +369,21 @@ export default function RoomsPage() {
                     </td>
                     <td className="px-4 py-3.5">
                       {app.status === "ALLOCATED" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
-                          <CheckCircle2 className="h-3 w-3 text-emerald-400" />
-                          Allocated ({app.allocated_room})
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
+                            <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                            Allocated ({app.allocated_room})
+                          </span>
+                          <button
+                            onClick={() => handleCallStudent(app)}
+                            disabled={callingStudentId === app.id}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-[10px] font-medium transition cursor-pointer"
+                            title="Call student via ElevenLabs Voice AI"
+                          >
+                            <Phone className="h-2.5 w-2.5" />
+                            {callingStudentId === app.id ? "Calling..." : "Call"}
+                          </button>
+                        </div>
                       ) : (
                         <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 text-[11px] font-medium text-amber-300">
                           <Clock className="h-3 w-3 text-amber-400" />
@@ -488,6 +519,17 @@ export default function RoomsPage() {
                   value={newStudentId}
                   onChange={(e) => setNewStudentId(e.target.value)}
                   className="w-full rounded-xl border border-zinc-700 bg-zinc-950 p-2.5 text-white focus:border-blue-400 focus:outline-none font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 mb-1 font-medium">Phone Number (Voice AI Allotment Call)</label>
+                <input
+                  type="text"
+                  placeholder="+918431362088"
+                  value={newPhone}
+                  onChange={(e) => setNewPhone(e.target.value)}
+                  className="w-full rounded-xl border border-zinc-700 bg-zinc-950 p-2.5 text-white focus:border-blue-400 focus:outline-none font-mono text-sm"
                 />
               </div>
 

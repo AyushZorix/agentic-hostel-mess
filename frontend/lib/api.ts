@@ -191,6 +191,7 @@ export async function getRoomRequests() {
 export async function createRoomRequest(data: {
   student_id: string;
   student_name: string;
+  phone?: string;
   year_of_study: number;
   distance_km: number;
   has_medical_priority: boolean;
@@ -212,6 +213,16 @@ export async function allocateRooms() {
     headers: { "Content-Type": "application/json" }
   });
   if (!res.ok) throw new Error("Failed to run room allocation agent");
+  return res.json();
+}
+
+export async function callStudentForRoomAllotment(applicationId: string, phone?: string) {
+  const url = `${API_BASE_URL}/api/rooms/${applicationId}/call-student${phone ? `?phone=${encodeURIComponent(phone)}` : ""}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
+  if (!res.ok) throw new Error("Failed to dispatch voice call to student");
   return res.json();
 }
 

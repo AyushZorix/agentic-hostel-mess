@@ -433,3 +433,161 @@ async def initiate_maintenance_manager_call(
         "timestamp": datetime.utcnow().isoformat()
     }
 
+
+async def initiate_student_room_allotment_call(
+    student_name: str,
+    phone_number: str,
+    student_id: str,
+    room_no: str,
+    block: str,
+    room_type: str = "Double",
+    floor: int = 1,
+    priority_score: float = 0.0,
+    api_key_override: Optional[str] = None,
+    agent_id_override: Optional[str] = None,
+    phone_number_id_override: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Dispatches an automated outbound voice call via ElevenLabs Conversational AI + Twilio
+    to inform a student that their room allotment is completed and announce their allotted room.
+    """
+    api_key = _get_api_key(api_key_override)
+    agent_id = _get_agent_id(agent_id_override)
+    phone_number_id = _get_phone_number_id(phone_number_id_override)
+
+    normalized_phone = _normalize_phone(phone_number)
+    if not normalized_phone:
+        normalized_phone = os.getenv("MAINTENANCE_MANAGER_PHONE", "+918431362088")
+
+    dynamic_variables = {
+        "student_name": student_name,
+        "student_id": student_id,
+        "room_no": room_no,
+        "room_number": room_no,
+        "block": block,
+        "room_type": room_type,
+        "floor": str(floor),
+        "priority_score": str(priority_score),
+        "manager_name": student_name,
+        "details": (
+            f"Official HostelOps Room Allotment Notification: Congratulations {student_name} (ID: {student_id})! "
+            f"Your hostel room application has been successfully processed and approved. "
+            f"You have been officially allotted Room {room_no} in {block} (Type: {room_type}, Floor {floor}). "
+            f"Please visit the Hostel Warden Office with your student ID card to collect your room keys."
+        ),
+        "safeguard_instructions": (
+            f"You are the official University Hostel Administration AI voice assistant calling student {student_name} "
+            f"(Student ID: {student_id}). "
+            f"Your mission is to warmly inform them that their hostel room allotment is complete! "
+            f"They have been allocated Room Number {room_no} in {block}. "
+            f"It is a {room_type} room located on Floor {floor}. "
+            f"Inform them they can collect their room keys from the Warden Office between 9 AM and 5 PM on weekdays. "
+            f"Answer any questions they have regarding the room, block, or check-in procedure politely and clearly."
+        )
+    }
+
+    if not api_key:
+        logger.warning("[11L-Room] No ELEVENLABS_API_KEY set. Simulating allotment call.")
+        simulated_call_sid = f"CA_ROOM_SIM_{int(datetime.utcnow().timestamp())}"
+        simulated_convo_id = f"conv_room_{int(datetime.utcnow().timestamp())}"
+        return {
+            "mode": "SIMULATION",
+            "success": True,
+            "conversation_id": simulated_convo_id,
+            "call_sid": simulated_call_sid,
+            "to_number": normalized_phone,
+            "student_name": student_name,
+            "room_no": room_no,
+            "block": block,
+            "dynamic_variables": dynamic_variables,
+            "script_preview": (
+                f"Hello {student_name}! This is the Hostel Administration Voice Assistant calling to confirm that your "
+                f"hostel room allotment is complete. You have been allotted Room {room_no} in {block} ({room_type} sharing, Floor {floor}). "
+                f"Please collect your room keys from the Warden Office."
+            ),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+    payload = {
+        "agent_id": agent_id,
+        "agent_phone_number_id": phone_number_id,
+        "to_number": normalized_phone,
+        "conversation_initiation_client_data": {
+            "dynamic_variables": dynamic_variables,
+        },
+    }
+
+    url = f"{ELEVENLABS_BASE}/convai/twilio/outbound-call"
+    headers = {
+        "xi-api-key": api_key,
+        "Content-Type": "application/json",
+    }
+
+    logger.info(
+        "[11L-Room][outbound_call] to=%s student=%s room=%s agent_id=%s phone_id=%s",
+        _mask_phone(normalized_phone),
+        student_name,
+        room_no,
+        agent_id,
+        phone_number_id
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(url, json=_json_safe(payload), headers=headers)
+
+        logger.info("[11L-Room][response] status=%s body=%s", resp.status_code, resp.text)
+
+        if resp.status_code >= 400:
+            logger.error("ElevenLabs Room Allotment API error %s: %s", resp.status_code, resp.text)
+            return {
+                "mode": "FAILED_API",
+                "success": False,
+                "error": f"ElevenLabs API error {resp.status_code}: {resp.text}",
+                "to_number": normalized_phone,
+                "student_name": student_name,
+                "room_no": room_no,
+                "block": block,
+                "timestamp": datetime.utcnow().isoformat()
+            }
+
+        data = resp.json()
+        if data.get("success") is False:
+            err_msg = data.get("message", "Unknown Twilio / ElevenLabs error")
+            logger.error(f"[11L-Room] Dispatch error: {err_msg}")
+            return {
+                "mode": "FAILED_TWILIO",
+                "success": False,
+                "error": err_msg,
+                "to_number": normalized_phone,
+                "student_name": student_name,
+                "room_no": room_no,
+                "block": block,
+                "timestamp": datetime.utcnow().isoformat()
+            }
+
+        return {
+            "mode": "LIVE",
+            "success": True,
+            "conversation_id": data.get("conversation_id"),
+            "call_sid": data.get("callSid") or data.get("call_sid"),
+            "to_number": normalized_phone,
+            "student_name": student_name,
+            "room_no": room_no,
+            "block": block,
+            "dynamic_variables": dynamic_variables,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"[11L-Room] Call dispatch exception: {e}")
+        return {
+            "mode": "EXCEPTION",
+            "success": False,
+            "error": str(e),
+            "to_number": normalized_phone,
+            "student_name": student_name,
+            "room_no": room_no,
+            "block": block,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+

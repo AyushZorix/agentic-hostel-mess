@@ -31,6 +31,7 @@ from mcp.server import MessMCPServer
 from src.elevenlabs_service import (
     initiate_vendor_outbound_call,
     initiate_maintenance_manager_call,
+    initiate_student_room_allotment_call,
     get_conversation,
     process_vendor_call_webhook
 )
@@ -638,6 +639,7 @@ class RoomRequest(BaseModel):
     distance_km: float # Home distance in km
     has_medical_priority: bool = False
     preferred_type: str = "Double" # Single, Double, Triple
+    phone: Optional[str] = ""
     special_notes: Optional[str] = ""
 
 class CreateTicketRequest(BaseModel):
@@ -948,6 +950,7 @@ def get_room_requests(db: Session = Depends(get_db)):
             "id": a.application_id,
             "student_id": a.student_id,
             "student_name": a.student_name,
+            "phone": a.phone or "",
             "year_of_study": a.year_of_study,
             "distance_km": a.distance_km,
             "has_medical_priority": a.has_medical_priority,
@@ -974,6 +977,7 @@ def create_room_request(req: RoomRequest, db: Session = Depends(get_db)):
         application_id=app_id,
         student_id=req.student_id,
         student_name=req.student_name,
+        phone=req.phone or "",
         year_of_study=req.year_of_study,
         distance_km=req.distance_km,
         has_medical_priority=req.has_medical_priority,
@@ -988,11 +992,12 @@ def create_room_request(req: RoomRequest, db: Session = Depends(get_db)):
     return {"message": "Room application submitted to PostgreSQL", "application_id": app_id, "priority_score": priority}
 
 @app.post("/api/rooms/allocate")
-def run_room_allocation_agent(db: Session = Depends(get_db)):
+async def run_room_allocation_agent(db: Session = Depends(get_db)):
     """
     Autonomous Room Allocation Agent:
-    Sorts pending applications from PostgreSQL by priority score
-    and maps them to available room inventory.
+    Sorts pending applications from PostgreSQL by priority score,
+    maps them to available room inventory, and dispatches automated
+    voice calls via ElevenLabs + Twilio informing each student of their allotted room.
     """
     allocations_made = []
     pending = db.query(StudentRoomApplication).filter(StudentRoomApplication.status == "PENDING_ALLOCATION").order_by(StudentRoomApplication.priority_score.desc()).all()
@@ -1028,14 +1033,33 @@ def run_room_allocation_agent(db: Session = Depends(get_db)):
 
             app.allocated_room = matching_room.room_no
             app.status = "ALLOCATED"
+
+            # Dispatch automated voice call notification
+            call_info = None
+            student_phone = app.phone or os.getenv("MAINTENANCE_MANAGER_PHONE", "+918431362088")
+            try:
+                call_info = await initiate_student_room_allotment_call(
+                    student_name=app.student_name,
+                    phone_number=student_phone,
+                    student_id=app.student_id,
+                    room_no=matching_room.room_no,
+                    block=matching_room.block,
+                    room_type=matching_room.type,
+                    floor=matching_room.floor,
+                    priority_score=app.priority_score
+                )
+            except Exception as call_err:
+                call_info = {"mode": "ERROR", "error": str(call_err)}
             
             allocations_made.append({
                 "student_id": app.student_id,
                 "student_name": app.student_name,
+                "phone": student_phone,
                 "room_no": matching_room.room_no,
                 "block": matching_room.block,
                 "priority_score": app.priority_score,
-                "reasoning": f"Score {app.priority_score} (Year {app.year_of_study}, {app.distance_km}km, Med: {app.has_medical_priority})"
+                "reasoning": f"Score {app.priority_score} (Year {app.year_of_study}, {app.distance_km}km, Med: {app.has_medical_priority})",
+                "voice_call": call_info
             })
 
     db.commit()
@@ -1046,6 +1070,38 @@ def run_room_allocation_agent(db: Session = Depends(get_db)):
         "allocations": allocations_made,
         "remaining_pending": db.query(StudentRoomApplication).filter(StudentRoomApplication.status == "PENDING_ALLOCATION").count(),
         "timestamp": datetime.utcnow().isoformat()
+    }
+
+@app.post("/api/rooms/{application_id}/call-student")
+async def call_student_allotment(application_id: str, phone: Optional[str] = None, db: Session = Depends(get_db)):
+    """Manually dispatch or re-trigger an ElevenLabs voice call to an allocated student."""
+    app_record = db.query(StudentRoomApplication).filter(StudentRoomApplication.application_id == application_id).first()
+    if not app_record:
+        raise HTTPException(status_code=404, detail="Student application not found")
+    if not app_record.allocated_room:
+        raise HTTPException(status_code=400, detail="Student has not been allocated a room yet")
+    
+    room = db.query(HostelRoom).filter(HostelRoom.room_no == app_record.allocated_room).first()
+    target_phone = phone or app_record.phone or os.getenv("MAINTENANCE_MANAGER_PHONE", "+918431362088")
+    
+    call_result = await initiate_student_room_allotment_call(
+        student_name=app_record.student_name,
+        phone_number=target_phone,
+        student_id=app_record.student_id,
+        room_no=app_record.allocated_room,
+        block=room.block if room else "Main Hostel Block",
+        room_type=room.type if room else app_record.preferred_type,
+        floor=room.floor if room else 1,
+        priority_score=app_record.priority_score
+    )
+    if call_result.get("success") is False:
+        err = call_result.get("error", "Twilio call dispatch failed")
+        raise HTTPException(status_code=400, detail=f"Call dispatch failed: {err}")
+
+    return {
+        "status": "SUCCESS",
+        "message": f"Voice call dispatched to {app_record.student_name} ({target_phone})",
+        "call_result": call_result
     }
 
 # ==========================================
